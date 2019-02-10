@@ -52,7 +52,7 @@ public class RNAnkiDroidModule extends ReactContextBaseJavaModule {
 
   @Override
   public String getName() {
-    return "RNReactNativeAnkiDroid";
+    return "RNAnkiDroid";
   }
 
   

@@ -1,13 +1,13 @@
 import { NativeModules, PermissionsAndroid, Platform } from "react-native";
 
-const { RNAnkiDroidModule } = NativeModules;
+const { RNAnkiDroid } = NativeModules;
 
 const androidCheck = () => Platform.OS === "android";
 
 const getPermissionName = async () => {
   let permissionName;
   try {
-    permissionName = await RNAnkiDroidModule.getPermissionName();
+    permissionName = await RNAnkiDroid.getPermissionName();
   } catch (error) {
     permissionName = null;
     console.warn(
@@ -26,7 +26,7 @@ export const isApiAvailable = async () => {
   if (!androidCheck()) return;
   let apiAvailable;
   try {
-    apiAvailable = await RNAnkiDroidModule.isApiAvailable();
+    apiAvailable = await RNAnkiDroid.isApiAvailable();
   } catch (error) {
     apiAvailable = null;
     console.warn(
@@ -66,4 +66,4 @@ requestPermission = async () => {
   return permissionRequest;
 };
 
-export default RNAnkiDroidModule;
+export default RNAnkiDroid;

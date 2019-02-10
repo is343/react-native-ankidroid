@@ -70,7 +70,6 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
 
   /**
    * Check if the AnkiDroid API is available on the phone
-   * 
    * @return true if the API is available to use
    */
   @ReactMethod
@@ -85,7 +84,6 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
   /**
    * Whether or not the API is available to use. The API could be unavailable if
    * AnkiDroid is not installed or the user explicitly disabled the API
-   * 
    * @return true if the API is available to use
    */
   private static boolean isApiAvailable(ReactApplicationContext context) {
@@ -94,7 +92,6 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
 
   /**
    * converts ReadableArrays to a useable String[]
-   * 
    * @param incomingReadableArray
    * @return might be null if there was a problem
    */
@@ -112,7 +109,6 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
 
   /**
    * get the deck id
-   * 
    * @param dBDeckReference
    * @param deckName - null for default deck
    * @return might be null if there was a problem, or to return the default deck
@@ -131,7 +127,6 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
 
   /**
    * get model id
-   * 
    * @param dBModelReference
    * @param deckId - null for default deck.
    * @param modelName
@@ -177,7 +172,6 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
 
   /**
    * Remove the duplicates from a list of note fields and tags
-   * 
    * @param fields List of fields to remove duplicates from
    * @param tags List of tags to remove duplicates from
    * @param modelId ID of model to search for duplicates on
@@ -229,7 +223,6 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
    * required number of fields then return that ID (even though it may have since
    * been renamed) If there's a model from #getModelList with modelName and
    * required number of fields then return its ID Otherwise return null
-   * 
    * @param dBModelReference
    * @param modelName the name of the model to find
    * @param numFields the minimum number of fields the model is required to have
@@ -264,7 +257,6 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
    * SharedPreferences, and that deck exist in AnkiDroid (i.e. it was renamed),
    * then use that deck.Note: this deck will not be found if your app is
    * re-installed If there's no reference to deckName anywhere then return null
-   * 
    * @param dBDeckReference
    * @param deckName the name of the deck to find
    * @return the did of the deck in Anki
@@ -274,7 +266,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
     // Look for deckName in the deck list
     Long did = _getDeckId(deckName);
     if (did != null) {
-      // If the deck was found then return it's id
+      // If the deck was found then return its ID
       return did;
     } else {
       // Otherwise try to check if we have a reference to a deck that was renamed and
@@ -291,7 +283,6 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
 
   /**
    * Get the ID of the deck which matches the name
-   * 
    * @param deckName Exact name of deck (note: deck names are unique in Anki)
    * @return the ID of the deck that has given name, or null if no deck was found
    *         or API error
@@ -310,7 +301,6 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
 
   /**
    * Check if the AnkiDroid API is available on the phone
-   * 
    * @param deckName - null for default deck.
    * @param modelName
    * @param dBDeckReference

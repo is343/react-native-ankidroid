@@ -37,22 +37,19 @@ import static com.ichi2.anki.api.AddContentApi.READ_WRITE_PERMISSION;
 public class RNAnkiDroidModule extends ReactContextBaseJavaModule {
   private AddContentApi mApi;
   private Context mContext;
-  // private ReactApplicationContext reactContext;
-
 
   private final ReactApplicationContext reactContext;
 
-  public RNAnkiDroidModule(ReactApplicationContext reactContext) {
+  public AnkiDroidModule(ReactApplicationContext reactContext) {
     super(reactContext);
     this.reactContext = reactContext;
     mContext = reactContext.getApplicationContext();
-    // mContext = reactContext.getApplicationContext();
     mApi = new AddContentApi(mContext);
   }
 
   @Override
   public String getName() {
-    return "RNAnkiDroid";
+    return "AnkiDroid";
   }
 
   

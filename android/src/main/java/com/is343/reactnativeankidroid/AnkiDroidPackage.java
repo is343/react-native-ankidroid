@@ -14,7 +14,7 @@ import com.facebook.react.bridge.JavaScriptModule;
 public class RNAnkiDroidPackage implements ReactPackage {
   @Override
   public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-    return Arrays.<NativeModule>asList(new RNAnkiDroidModule(reactContext));
+    return Arrays.<NativeModule>asList(new AnkiDroidModule(reactContext));
   }
 
   // Deprecated from RN 0.47

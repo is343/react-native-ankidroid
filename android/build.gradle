@@ -32,5 +32,6 @@ repositories {
 
 dependencies {
     compile 'com.facebook.react:react-native:+'
+    implementation 'com.ichi2.anki:api:1.1.0alpha6'
 }
   

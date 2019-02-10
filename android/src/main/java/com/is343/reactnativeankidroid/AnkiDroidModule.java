@@ -34,7 +34,7 @@ import com.ichi2.anki.api.NoteInfo;
 
 import static com.ichi2.anki.api.AddContentApi.READ_WRITE_PERMISSION;
 
-public class RNAnkiDroidModule extends ReactContextBaseJavaModule {
+public class AnkiDroidModule extends ReactContextBaseJavaModule {
   private AddContentApi mApi;
   private Context mContext;
 
@@ -103,32 +103,34 @@ public class RNAnkiDroidModule extends ReactContextBaseJavaModule {
         for (int index = 0; index < incomingReadableArray.size(); index++) {
           array[index] = incomingReadableArray.getString(index);
         }
-        return array
+        return array;
     } catch (Exception e) {
-      return null
+      return null;
     }
   }
 
 
   /**
    * get the deck id
+   * @param dBDeckReference
    * @param deckName - null for default deck
    * @return might be null if there was a problem, or to return the default deck
    */
-  private Long getDeckId(String deckName) {
+  private Long getDeckId(String dBDeckReference, String deckName) {
     if (deckName == null) {
-      return null
+      return null;
     }
     Long did = findDeckIdByName(deckName);
     if (did == null) {
       did = getApi().addNewDeck(deckName);
-      storeDeckReference(deckName, did);
+      storeDeckReference(dBDeckReference, deckName, did);
     }
     return did;
   }
 
   /**
    * get model id
+   * @param dBModelReference
    * @param deckId - null for default deck.
    * @param modelName
    * @param modelFields
@@ -138,19 +140,46 @@ public class RNAnkiDroidModule extends ReactContextBaseJavaModule {
    * @param css - null for default CSS.
    * @return might be null if there was an error
    */
-  private Long getModelId(String modelName, String[] modelFields, Long deckId, String[] cardNames, String[] questionFormat, String[] answerFormat, String css) {
+  private Long getModelId(String dBModelReference, String modelName, String[] modelFields, Long deckId, String[] cardNames, String[] questionFormat, String[] answerFormat, String css) {
     Long mid = findModelIdByName(modelName, modelFields.length);
     if (mid == null) {
       mid = getApi().addNewCustomModel(modelName, modelFields, cardNames, questionFormat, answerFormat, css, deckId, null);
-      storeModelReference(modelName, mid);
+      storeModelReference(dBModelReference, modelName, mid);
     }
     return mid;
   }
 
+  
+  /**
+   * Save a mapping from deckName to getDeckId in the SharedPreferences
+   * @param dBDeckReference
+   * @param deckName
+   * @param deckId
+   */
+  public void storeDeckReference(String dBDeckReference, String deckName, long deckId) {
+    final SharedPreferences decksDb = mContext.getSharedPreferences(dBDeckReference, Context.MODE_PRIVATE);
+    decksDb.edit().putLong(deckName, deckId).apply();
+  }
+
+  /**
+   * Save a mapping from modelName to modelId in the SharedPreferences
+   * @param dBModelReference
+   * @param modelName
+   * @param modelId
+   */
+  public void storeModelReference(String dBModelReference, String modelName, long modelId) {
+    final SharedPreferences modelsDb = mContext.getSharedPreferences(dBModelReference, Context.MODE_PRIVATE);
+    modelsDb.edit().putLong(modelName, modelId).apply();
+  }
+
+  private static final String DECK_REF_DB = "com.ichi2.anki.api.decks1";
+  private static final String MODEL_REF_DB = "com.ichi2.anki.api.models1";
   /**
    * Check if the AnkiDroid API is available on the phone
    * @param deckName - null for default deck.
    * @param modelName
+   * @param dBDeckReference
+   * @param dBModelReference
    * @param incomingModelFields
    * @param incomingValueFields
    * @param incomingTags
@@ -171,14 +200,14 @@ public class RNAnkiDroidModule extends ReactContextBaseJavaModule {
       String[] answerFormat = convertReadableArray(incomingAnswerFormat);
       
       Set<String> tags = new HashSet<String>(Arrays.asList(tagArray));
-      Long deckId = getDeckId(deckName);
+      Long deckId = getDeckId(dBDeckReference, deckName);
       
       if ((deckId == null) && (deckName != null)) {
         promise.resolve("FAILED_TO_CREATE_DECK");
         return;
       }
 
-      Long modelId = getModelId(modelName, modelFields, deckId, cardNames, questionFormat, answerFormat, css);
+      Long modelId = getModelId(dBModelReference, modelName, modelFields, deckId, cardNames, questionFormat, answerFormat, css);
       
       if (modelId == null) {
         promise.resolve("FAILED_TO_CREATE_MODEL");

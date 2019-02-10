@@ -1,13 +1,13 @@
 import { NativeModules, PermissionsAndroid, Platform } from "react-native";
 
-const { AnkiDroid } = NativeModules;
+const { AnkiDroidModule } = NativeModules;
 
 const androidCheck = () => Platform.OS === "android";
 
-const getPermissionName = async () => {
+export const getPermissionName = async () => {
   let permissionName;
   try {
-    permissionName = await AnkiDroid.getPermissionName();
+    permissionName = await AnkiDroidModule.getPermissionName();
   } catch (error) {
     permissionName = null;
     console.warn(
@@ -26,7 +26,7 @@ export const isApiAvailable = async () => {
   if (!androidCheck()) return;
   let apiAvailable;
   try {
-    apiAvailable = await AnkiDroid.isApiAvailable();
+    apiAvailable = await AnkiDroidModule.isApiAvailable();
   } catch (error) {
     apiAvailable = null;
     console.warn(
@@ -51,7 +51,7 @@ export const checkPermission = async () => {
   return permission;
 };
 
-requestPermission = async (rational = null) => {
+export const requestPermission = async (rational = null) => {
   if (!androidCheck()) return;
   const permissionName = await getPermissionName();
   if (!permissionName) return false;
@@ -71,4 +71,4 @@ requestPermission = async (rational = null) => {
   return permissionRequest;
 };
 
-export default AnkiDroid;
+export default AnkiDroidModule;

@@ -68,5 +68,7 @@ AnkiDroid.**\_\_\_\_\_\_\_**
 ## Todo
 
 - add multiple notes at once
+- add basic card
+- AnkiDroid intent API
 - add more documentation within code
 - typescript

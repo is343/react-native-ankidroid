@@ -34,16 +34,6 @@
      compile project(':react-native-react-native-anki-droid')
    ```
 
-#### Windows
-
-[Read it! :D](https://github.com/ReactWindows/react-native)
-
-1. In Visual Studio add the `RNReactNativeAnkiDroid.sln` in `node_modules/react-native-react-native-anki-droid/windows/RNReactNativeAnkiDroid.sln` folder to their solution, reference from their app.
-2. Open up your `MainPage.cs` app
-
-- Add `using React.Native.Anki.Droid.RNReactNativeAnkiDroid;` to the usings at the top of the file
-- Add `new RNAnkiDroidPackage()` to the `List<IReactPackage>` returned by the `Packages` method
-
 ## Usage
 
 ```javascript

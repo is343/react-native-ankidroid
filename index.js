@@ -145,15 +145,15 @@ const checkValidFields = (modelFields, valueFields) => {
 const checkArrayLength = (argument, index) => {
   let errorArgument = null;
   switch (index) {
-    case 7:
+    case 4:
       if (argument.length === 2 && Array.isArray(argument)) return true;
       errorArgument = "cardNames";
       break;
-    case 8:
+    case 5:
       if (argument.length === 2 && Array.isArray(argument)) return true;
       errorArgument = "questionFormat";
       break;
-    case 9:
+    case 6:
       if (argument.length === 2 && Array.isArray(argument)) return true;
       errorArgument = "answerFormat";
       break;

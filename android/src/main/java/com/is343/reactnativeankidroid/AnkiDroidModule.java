@@ -326,8 +326,10 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
       String[] cardNames = convertReadableArray(incomingCardNames);
       String[] questionFormat = convertReadableArray(incomingQuestionFormat);
       String[] answerFormat = convertReadableArray(incomingAnswerFormat);
+      
+      // to account for no tags
+      Set<String> tags = tagArray == null ? null : new HashSet<String>(Arrays.asList(tagArray));
 
-      Set<String> tags = new HashSet<String>(Arrays.asList(tagArray));
       Long deckId = getDeckId(dBDeckReference, deckName);
 
       if ((deckId == null) && (deckName != null)) {

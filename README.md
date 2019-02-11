@@ -38,7 +38,7 @@ AnkiDroid.isApiAvailable();
 AnkiDroid.**\_\_\_\_\_\_\_**
 
 - **getPermissionName**
-- **isApiAvailable** - checks if the AnkiDroid is avaiable (AnkiDroid is installed on the device)
+- **isApiAvailable** - checks if the AnkiDroid API is avaiable (AnkiDroid is installed on the device)
 - **checkPermission**
 - **requestPermission**
 - **addNote**
@@ -59,7 +59,7 @@ AnkiDroid.**\_\_\_\_\_\_\_**
 | tags             | string[] | False    | null    | Tags to attach to added notes                                                                                             |
 | css              |  string  | False    | null    | css styling information to be shared across all cards. _(null for default CSS)_                                           |
 
-## Card setup references
+## Card setup / References
 
 - [Anki Cards and Templates Documentation](https://apps.ankiweb.net/docs/manual.html#cards-and-templates)
 - [AnkiDroid API documentation](https://github.com/ankidroid/Anki-Android/wiki/AnkiDroid-API)
@@ -70,5 +70,6 @@ AnkiDroid.**\_\_\_\_\_\_\_**
 - add multiple notes at once
 - add basic card
 - AnkiDroid intent API
+- detailed examples
 - add more documentation within code
 - typescript

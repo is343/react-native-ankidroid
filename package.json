@@ -1,7 +1,7 @@
 {
-  "name": "react-native-react-native-anki-droid",
+  "name": "react-native-react-native-ankidroid",
   "version": "0.1.0",
-  "description": "",
+  "description": "A react native wrapper for the AnkiDroid API",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,16 +11,13 @@
     "ankidroid",
     "anki"
   ],
-  "author": {
-    "name": "Ivan Schurawel",
-    "url": "https://github.com/is343"
-  },
+  "author": "Ivan Schurawel (https://github.com/is343)",
   "bugs": {
     "url": "https://github.com/is343/react-native-ankidroid/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/is343/react-native-ankidroid.git"
+    "url": "git+https://github.com/is343/react-native-ankidroid.git"
   },
   "homepage": "https://github.com/is343/react-native-ankidroid/",
   "license": "MIT",

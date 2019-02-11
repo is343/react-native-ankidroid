@@ -4,14 +4,22 @@ const { AnkiDroidModule } = NativeModules;
 
 const MODULE_NAME = "REACT NATIVE ANKIDROID";
 const ARGUMENT_TYPE_ERROR = " - Argument Type error:";
+const PERMISSION_ERROR = "PERMISSION DENIED BY USER";
+const OS_ERROR = "ANDROID USE ONLY";
 const STRING_OR_NULL = "must be a string (or null)";
 const STRING = "must be a string";
 const ARRAY_OF_STRING = "must be an array of strings";
 const NOTE_UNKNOWN = "Unknown type error while adding note";
 
-const androidCheck = () => Platform.OS === "android";
+const androidCheck = () => {
+  if (Platform.OS === "android") {
+    return true;
+  }
+  console.warn(MODULE_NAME, OS_ERROR);
+  return false;
+};
 
-export const getPermissionName = async () => {
+const getPermissionName = async () => {
   let permissionName;
   try {
     permissionName = await AnkiDroidModule.getPermissionName();
@@ -26,7 +34,7 @@ export const getPermissionName = async () => {
  * Check if the AnkiDroid API is available on the phone
  * @return `true` if the API is available to use
  */
-export const isApiAvailable = async () => {
+const isApiAvailable = async () => {
   if (!androidCheck()) return;
   let apiAvailable;
   try {
@@ -38,7 +46,7 @@ export const isApiAvailable = async () => {
   return apiAvailable;
 };
 
-export const checkPermission = async () => {
+const checkPermission = async () => {
   if (!androidCheck()) return;
   const permissionName = await getPermissionName();
   if (!permissionName) return false;
@@ -52,7 +60,7 @@ export const checkPermission = async () => {
   return permission;
 };
 
-export const requestPermission = async (rational = null) => {
+const requestPermission = async (rational = null) => {
   if (!androidCheck()) return;
   const permissionName = await getPermissionName();
   if (!permissionName) return false;
@@ -69,27 +77,30 @@ export const requestPermission = async (rational = null) => {
   return permissionRequest;
 };
 
-export async function addNote(
-  deckName = null,
-  modelName,
+async function addNote(
   dBDeckReference,
   dBModelReference,
   modelFields,
   valueFields,
-  tags,
   cardNames,
   questionFormat,
   answerFormat,
+  modelName,
+  deckName = null,
+  tags = null,
   css = null
 ) {
   if (!androidCheck()) return;
-  if (!checkPermission()) return;
+  if (!checkPermission()) return PERMISSION_ERROR;
 
   if (!checkValidFields(modelFields, valueFields)) return;
 
   for (let index = 0; index < arguments.length; index++) {
     // check for null exceptions
-    if (arguments[index] === null && (index === 0 || index === 10)) {
+    if (
+      arguments[index] === null &&
+      (index === 8 || index === 9 || index === 10)
+    ) {
       continue;
     }
     if (!checkArrayLength(arguments[index], index)) {
@@ -153,7 +164,7 @@ const checkArrayLength = (argument, index) => {
     console.warn(
       MODULE_NAME,
       ARGUMENT_TYPE_ERROR,
-      `${errorArgument} must have a length of 2`
+      `${errorArgument} must be an array with a length of 2`
     );
     return false;
   }
@@ -232,6 +243,12 @@ const checkValidString = itemToCheck => {
   }
 };
 
-const AnkiDroid = AnkiDroidModule;
+const AnkiDroid = {
+  getPermissionName,
+  isApiAvailable,
+  requestPermission,
+  checkPermission,
+  addNote
+};
 
 export default AnkiDroid;

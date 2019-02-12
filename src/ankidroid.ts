@@ -70,8 +70,8 @@ export const requestPermission = async (
  * are created, all newly created notes must have the correct matching info
  * - deckName: `string` - `null` for default deck.
  * - modelName: `string`
- * - dBDeckReference: `string`
- * - dBModelReference: `string`
+ * - dbDeckReference: `string`
+ * - dbModelReference: `string`
  * - modelFields: `string[]`
  * - valueFields: `string[]`
  * - cardNames: `string[]`
@@ -95,8 +95,8 @@ export const addNote = async (
   const {
     deckName = null,
     modelName,
-    dBDeckReference,
-    dBModelReference,
+    dbDeckReference,
+    dbModelReference,
     modelFields,
     valueFields,
     cardNames,
@@ -118,8 +118,8 @@ export const addNote = async (
   const addedNoteId: string = await AnkiDroidModule.addNote(
     deckName,
     modelName,
-    dBDeckReference,
-    dBModelReference,
+    dbDeckReference,
+    dbModelReference,
     modelFields,
     valueFields,
     tags,

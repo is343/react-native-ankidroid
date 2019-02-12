@@ -23,10 +23,10 @@ export enum ErrorText {
  * errors that can be thrown
  */
 export enum Errors {
-  UNKNOWN_ERROR = "UNKNOWN ERROR",
-  TYPE_ERROR = "INPUT TYPE ERROR",
-  OS_ERROR = "ANDROID USE ONLY",
-  PERMISSION_ERROR = "PERMISSION DENIED BY USER",
+  UNKNOWN_ERROR = "UNKNOWN_ERROR",
+  TYPE_ERROR = "INPUT_TYPE_ERROR",
+  OS_ERROR = "ANDROID_USE_ONLY",
+  PERMISSION_ERROR = "PERMISSION_DENIED_BY_USER",
   FAILED_TO_CREATE_DECK = "FAILED_TO_CREATE_DECK",
   FAILED_TO_CREATE_MODEL = "FAILED_TO_CREATE_MODEL",
   FAILED_TO_ADD_NOTE = "FAILED_TO_ADD_NOTE",
@@ -37,8 +37,8 @@ export enum Errors {
 export interface NoteData {
   deckName?: string
   modelName: string
-  dBDeckReference: string
-  dBModelReference: string
+  dbDeckReference: string
+  dbModelReference: string
   modelFields: string[]
   valueFields: string[]
   cardNames: string[]
@@ -53,8 +53,8 @@ export interface NoteData {
 export enum NoteDataKeys {
   deckName = "deckName",
   modelName = "modelName",
-  dBDeckReference = "dBDeckReference",
-  dBModelReference = "dBModelReference",
+  dbDeckReference = "dbDeckReference",
+  dbModelReference = "dbModelReference",
   modelFields = "modelFields",
   valueFields = "valueFields",
   cardNames = "cardNames",

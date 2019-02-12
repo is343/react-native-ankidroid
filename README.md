@@ -1,12 +1,18 @@
 # react-native-ankidroid
 
+React Native wrapper for the AnkiDroid API
+
+- [AnkiDroid API documentation](https://github.com/ankidroid/Anki-Android/wiki/AnkiDroid-API)
+
 ## Getting started
 
-`$ npm install react-native-ankidroid --save`
+`npm install react-native-ankidroid --save`
+_or_
+`yarn add react-native-ankidroid`
 
 ### Mostly automatic installation
 
-`$ react-native link react-native-ankidroid`
+`react-native link react-native-ankidroid`
 
 ### Manual installation
 
@@ -35,41 +41,42 @@ import AnkiDroid from "react-native-ankidroid";
 AnkiDroid.isApiAvailable();
 ```
 
-AnkiDroid.**\_\_\_\_\_\_\_**
+AnkiDroid.**\_\_\_\_\_\_\_\_\_\_** \_\_
 
-- **getPermissionName**
-- **isApiAvailable** - checks if the AnkiDroid API is avaiable (AnkiDroid is installed on the device)
-- **checkPermission**
-- **requestPermission**
-- **addNote**
+- **isApiAvailable()** - checks if the AnkiDroid API is avaiable (AnkiDroid is installed on the device)
+  -- AnkiDroid may need to be installed before the react native app to be visible
+- **checkPermission()**
+- **requestPermission(rationale)**
+  -- rationale (optional)
+- **addNote(noteData, permissionRationale)**
+  -- noteData (see below)
+  -- permissionRationale (optional)
 
-## addNote
+## noteData object
 
 | Params           |   Type   | Required | Default | Description                                                                                                               |
 | ---------------- | :------: | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
-| dBDeckReference  |  string  | True     | --      | Deck reference name to store locally with the AnkiDroid database                                                          |
-| dBModelReference |  string  | True     | --      | Model reference name to store locally with the AnkiDroid database                                                         |
-| modelFields      | string[] | True     | --      | The names of the fields used for the note's model during creation / use _(modelFields.length === valueFields.length)_     |
-| valueFields      | string[] | True     | --      | The values for the corresponding model fields. _(valueFields.length === modelFields.length)_                              |
-| cardNames        | string[] | True     | --      | Names for the front/back sides of the model _(cardNames.length === 2)_                                                    |
-| questionFormat   | string[] | True     | --      | Question formatting for each direction of _(questionFormat.length === 2)_ **variable names MUST match modelFields names** |
-| answerFormat     | string[] | True     | --      | Answer formatting for each direction of _(answerFormat.length === 2)_ **variable names MUST match modelFields names**     |
-| modelName        |  string  | True     | --      | Name of the model used / created for notes                                                                                |
-| deckName         |  string  | False    | null    | Name of the deck to create / add notes to _(null for Default Deck)_                                                       |
-| tags             | string[] | False    | null    | Tags to attach to added notes                                                                                             |
-| css              |  string  | False    | null    | css styling information to be shared across all cards. _(null for default CSS)_                                           |
+| dBDeckReference  |  string  | true     | --      | Deck reference name to store locally with the AnkiDroid database                                                          |
+| dBModelReference |  string  | true     | --      | Model reference name to store locally with the AnkiDroid database                                                         |
+| modelFields      | string[] | true     | --      | The names of the fields used for the note's model during creation / use _(modelFields.length === valueFields.length)_     |
+| valueFields      | string[] | true     | --      | The values for the corresponding model fields. _(valueFields.length === modelFields.length)_                              |
+| cardNames        | string[] | true     | --      | Names for the front/back sides of the model _(cardNames.length === 2)_                                                    |
+| questionFormat   | string[] | true     | --      | Question formatting for each direction of _(questionFormat.length === 2)_ **variable names MUST match modelFields names** |
+| answerFormat     | string[] | true     | --      | Answer formatting for each direction of _(answerFormat.length === 2)_ **variable names MUST match modelFields names**     |
+| modelName        |  string  | true     | --      | Name of the model used / created for notes                                                                                |
+| deckName         |  string  | false    | null    | Name of the deck to create / add notes to _(null for Default Deck)_                                                       |
+| tags             | string[] | false    | null    | Tags to attach to added notes                                                                                             |
+| css              |  string  | false    | null    | css styling information to be shared across all cards. _(null for default CSS)_                                           |
 
 ## Card setup / References
 
 - [Anki Cards and Templates Documentation](https://apps.ankiweb.net/docs/manual.html#cards-and-templates)
-- [AnkiDroid API documentation](https://github.com/ankidroid/Anki-Android/wiki/AnkiDroid-API)
 - [AnkiDroid API sample app](https://github.com/ankidroid/apisample) _- this was referenced extensively while making this_
 
 ## Todo
 
-- add multiple notes at once
-- add basic card
-- AnkiDroid intent API
-- detailed examples
-- add more documentation within code
-- typescript
+- [ ] add multiple notes at once
+- [ ] add basic card
+- [ ] AnkiDroid intent API
+- [ ] detailed examples
+- [x] ~~typescript~~

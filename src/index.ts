@@ -394,7 +394,6 @@ const checkValidString = (itemToCheck: string | string[]): boolean => {
  * The main AnkiDroid logic
  */
 const AnkiDroid = {
-  getPermissionName,
   isApiAvailable,
   requestPermission,
   checkPermission,

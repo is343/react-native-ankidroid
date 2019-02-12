@@ -66,7 +66,8 @@ export const requestPermission = async (
 }
 
 /**
- * Check if the AnkiDroid API is available on the phone
+ * Create deck, model, references, and create note. Once the deck, model, and references
+ * are created, all newly created notes must have the correct matching info
  * - deckName: `string` - `null` for default deck.
  * - modelName: `string`
  * - dBDeckReference: `string`

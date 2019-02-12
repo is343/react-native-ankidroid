@@ -7,8 +7,6 @@ React Native wrapper for the AnkiDroid API
 ## Getting started
 
 `npm install react-native-ankidroid --save`
-_or_
-`yarn add react-native-ankidroid`
 
 ### Mostly automatic installation
 
@@ -26,7 +24,7 @@ _or_
 2. Append the following lines to `android/settings.gradle`:
    ```
    include ':react-native-ankidroid'
-   project(':react-native-ankidroid').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-ankidroid/android')
+   project(':react-native-ankidroid').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-ankidroid/android')
    ```
 3. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
    ```
@@ -41,10 +39,10 @@ import AnkiDroid from "react-native-ankidroid";
 AnkiDroid.isApiAvailable();
 ```
 
-AnkiDroid.**\_\_\_\_\_\_\_\_\_\_** \_\_
+AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
 
 - **isApiAvailable()** - checks if the AnkiDroid API is avaiable (AnkiDroid is installed on the device)
-  -- AnkiDroid may need to be installed before the react native app to be visible
+  _AnkiDroid may need to be installed before the react native app to be visible_
 - **checkPermission()**
 - **requestPermission(rationale)**
   -- rationale (optional)
@@ -56,8 +54,8 @@ AnkiDroid.**\_\_\_\_\_\_\_\_\_\_** \_\_
 
 | Params           |   Type   | Required | Default | Description                                                                                                               |
 | ---------------- | :------: | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
-| dBDeckReference  |  string  | true     | --      | Deck reference name to store locally with the AnkiDroid database                                                          |
-| dBModelReference |  string  | true     | --      | Model reference name to store locally with the AnkiDroid database                                                         |
+| dbDeckReference  |  string  | true     | --      | Deck reference name to store locally with the AnkiDroid database                                                          |
+| dbModelReference |  string  | true     | --      | Model reference name to store locally with the AnkiDroid database                                                         |
 | modelFields      | string[] | true     | --      | The names of the fields used for the note's model during creation / use _(modelFields.length === valueFields.length)_     |
 | valueFields      | string[] | true     | --      | The values for the corresponding model fields. _(valueFields.length === modelFields.length)_                              |
 | cardNames        | string[] | true     | --      | Names for the front/back sides of the model _(cardNames.length === 2)_                                                    |

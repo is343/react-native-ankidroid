@@ -6,9 +6,7 @@ React Native wrapper for the AnkiDroid API
 
 ## Getting started
 
-- `npm install react-native-ankidroid --save`
-_or_
-- `yarn add react-native-ankidroid`
+`npm install react-native-ankidroid --save`
 
 ### Mostly automatic installation
 

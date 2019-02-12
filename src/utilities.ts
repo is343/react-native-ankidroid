@@ -70,18 +70,28 @@ export const checkForAddNoteErrors = (noteData: NoteData): Errors => {
  * @param valueFields
  */
 const checkValidFields = (modelFields: string[], valueFields: string[]) => {
-  if (
-    modelFields.length !== valueFields.length &&
-    Array.isArray(modelFields) &&
-    Array.isArray(valueFields)
-  ) {
+  try{
+    if (
+      modelFields.length !== valueFields.length &&
+      Array.isArray(modelFields) &&
+      Array.isArray(valueFields)
+    ) {
+      console.warn(
+        MODULE_NAME,
+        ErrorText.ARGUMENT_TYPE,
+        ErrorText.ARRAY_SAME_LENGTH,
+      )
+      return false
+    }
+  } catch(error) {
     console.warn(
       MODULE_NAME,
       ErrorText.ARGUMENT_TYPE,
       ErrorText.ARRAY_SAME_LENGTH,
+      error.toString(),
     )
     return false
-  }
+}
   return true
 }
 /**
@@ -93,6 +103,7 @@ const checkArrayLength = (
   noteDataValue: string | string[],
   noteDataKey: string,
 ): boolean => {
+  try{
   switch (noteDataKey) {
     case NoteDataKeys.cardNames:
       if (noteDataValue.length === 2 && Array.isArray(noteDataValue))
@@ -114,6 +125,15 @@ const checkArrayLength = (
     ErrorText.ARGUMENT_TYPE,
     `${noteDataKey} ${ErrorText.ARRAY_LENGTH_2}`,
   )
+} catch(error) {
+  console.warn(
+    MODULE_NAME,
+    ErrorText.ARGUMENT_TYPE,
+    `${noteDataKey} ${ErrorText.ARRAY_LENGTH_2}`,
+    error.toString(),
+  )
+  return false
+}
   return false
 }
 /**
@@ -129,10 +149,10 @@ const logTypeError = (noteDataKey: string): void => {
     case NoteDataKeys.modelName:
       errorText = ErrorText.STRING
       break
-    case NoteDataKeys.dBDeckReference:
+    case NoteDataKeys.dbDeckReference:
       errorText = ErrorText.STRING
       break
-    case NoteDataKeys.dBModelReference:
+    case NoteDataKeys.dbModelReference:
       errorText = ErrorText.STRING
       break
     case NoteDataKeys.modelFields:

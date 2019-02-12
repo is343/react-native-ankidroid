@@ -1,26 +1,17 @@
 
 package com.is343.reactnativeankidroid;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.content.Context;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import android.util.SparseArray;
 import android.content.SharedPreferences;
-import android.support.v4.app.ShareCompat;
-
-import android.support.v4.content.ContextCompat;
-import android.support.v4.app.ActivityCompat;
-import android.content.pm.PackageManager;
-import java.util.Collections;
 
 import android.os.Build;
 import com.facebook.react.bridge.Promise;
@@ -39,6 +30,9 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
   private Context mContext;
 
   private final ReactApplicationContext reactContext;
+  private final String FAILED_TO_CREATE_DECK = "FAILED_TO_CREATE_DECK";
+  private final String FAILED_TO_CREATE_MODEL = "FAILED_TO_CREATE_MODEL";
+  private final String FAILED_TO_ADD_NOTE = "FAILED_TO_ADD_NOTE";
 
   public AnkiDroidModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -333,7 +327,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
       Long deckId = getDeckId(dBDeckReference, deckName);
 
       if ((deckId == null) && (deckName != null)) {
-        promise.resolve("FAILED_TO_CREATE_DECK");
+        promise.resolve(FAILED_TO_CREATE_DECK);
         return;
       }
 
@@ -341,14 +335,14 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
           answerFormat, css);
 
       if (modelId == null) {
-        promise.resolve("FAILED_TO_CREATE_MODEL");
+        promise.resolve(FAILED_TO_CREATE_MODEL);
         return;
       }
 
       Long addedNoteId = getApi().addNote(modelId, deckId, valueFields, tags);
 
       if (addedNoteId == null) {
-        promise.resolve("FAILED_TO_ADD_NOTE");
+        promise.resolve(FAILED_TO_ADD_NOTE);
       } else {
         promise.resolve(addedNoteId.toString());
       }

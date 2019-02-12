@@ -24,7 +24,7 @@ React Native wrapper for the AnkiDroid API
 2. Append the following lines to `android/settings.gradle`:
    ```
    include ':react-native-ankidroid'
-   project(':react-native-ankidroid').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-ankidroid/android')
+   project(':react-native-ankidroid').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-ankidroid/android')
    ```
 3. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
    ```

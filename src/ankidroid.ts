@@ -81,7 +81,7 @@ export const requestPermission = async (
  * - css: `string` - `null` for default CSS.
  * @param noteData object with the above values
  * @param permissionRational optional `PermissionsAndroid` message to show when requesting permissions
- * @return might return an error type
+ * @return might return an error text if something goes wrong
  */
 export const addNote = async (
   noteData: NoteData,

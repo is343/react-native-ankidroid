@@ -42,7 +42,7 @@ AnkiDroid.isApiAvailable();
 AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
 
 - **isApiAvailable()** - checks if the AnkiDroid API is avaiable (AnkiDroid is installed on the device)
-  -- AnkiDroid may need to be installed before the react native app to be visible
+  _AnkiDroid may need to be installed before the react native app to be visible_
 - **checkPermission()**
 - **requestPermission(rationale)**
   -- rationale (optional)

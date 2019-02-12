@@ -170,8 +170,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
    * @param tags List of tags to remove duplicates from
    * @param modelId ID of model to search for duplicates on
    */
-  public void removeDuplicates(LinkedList<String[]> fields, LinkedList<Set<String>> tags, long modelId,
-      Promise promise) {
+  public void removeDuplicates(LinkedList<String[]> fields, LinkedList<Set<String>> tags, long modelId) {
     // Build a list of the duplicate keys (first fields) and find all notes that
     // have a match with each key
     List<String> keys = new ArrayList<>(fields.size());
@@ -181,7 +180,6 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
       counter++;
     }
     SparseArray<List<NoteInfo>> duplicateNotes = getApi().findDuplicateNotes(modelId, keys);
-    // promise.resolve(duplicateNotes.size());
 
     // Do some sanity checks
     if (tags.size() != fields.size()) {

@@ -4,6 +4,10 @@
   "description": "A react native wrapper for the AnkiDroid API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "android/**/*",
+    "dist/**/*"
+  ],
   "typescript": {
     "definition": "dist/index.d.ts"
   },

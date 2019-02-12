@@ -1,26 +1,17 @@
 
 package com.is343.reactnativeankidroid;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.content.Context;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import android.util.SparseArray;
 import android.content.SharedPreferences;
-import android.support.v4.app.ShareCompat;
-
-import android.support.v4.content.ContextCompat;
-import android.support.v4.app.ActivityCompat;
-import android.content.pm.PackageManager;
-import java.util.Collections;
 
 import android.os.Build;
 import com.facebook.react.bridge.Promise;
@@ -39,6 +30,9 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
   private Context mContext;
 
   private final ReactApplicationContext reactContext;
+  private final String FAILED_TO_CREATE_DECK = "FAILED_TO_CREATE_DECK";
+  private final String FAILED_TO_CREATE_MODEL = "FAILED_TO_CREATE_MODEL";
+  private final String FAILED_TO_ADD_NOTE = "FAILED_TO_ADD_NOTE";
 
   public AnkiDroidModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -109,25 +103,25 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
 
   /**
    * get the deck id
-   * @param dBDeckReference
+   * @param dbDeckReference
    * @param deckName - null for default deck
    * @return might be null if there was a problem, or to return the default deck
    */
-  private Long getDeckId(String dBDeckReference, String deckName) {
+  private Long getDeckId(String dbDeckReference, String deckName) {
     if (deckName == null) {
       return null;
     }
-    Long did = findDeckIdByName(dBDeckReference, deckName);
+    Long did = findDeckIdByName(dbDeckReference, deckName);
     if (did == null) {
       did = getApi().addNewDeck(deckName);
-      storeDeckReference(dBDeckReference, deckName, did);
+      storeDeckReference(dbDeckReference, deckName, did);
     }
     return did;
   }
 
   /**
    * get model id
-   * @param dBModelReference
+   * @param dbModelReference
    * @param deckId - null for default deck.
    * @param modelName
    * @param modelFields
@@ -137,36 +131,36 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
    * @param css - null for default CSS.
    * @return might be null if there was an error
    */
-  private Long getModelId(String dBModelReference, String modelName, String[] modelFields, Long deckId,
+  private Long getModelId(String dbModelReference, String modelName, String[] modelFields, Long deckId,
       String[] cardNames, String[] questionFormat, String[] answerFormat, String css) {
-    Long mid = findModelIdByName(dBModelReference, modelName, modelFields.length);
+    Long mid = findModelIdByName(dbModelReference, modelName, modelFields.length);
     if (mid == null) {
       mid = getApi().addNewCustomModel(modelName, modelFields, cardNames, questionFormat, answerFormat, css, deckId,
           null);
-      storeModelReference(dBModelReference, modelName, mid);
+      storeModelReference(dbModelReference, modelName, mid);
     }
     return mid;
   }
 
   /**
    * Save a mapping from deckName to getDeckId in the SharedPreferences
-   * @param dBDeckReference
+   * @param dbDeckReference
    * @param deckName
    * @param deckId
    */
-  public void storeDeckReference(String dBDeckReference, String deckName, long deckId) {
-    final SharedPreferences decksDb = mContext.getSharedPreferences(dBDeckReference, Context.MODE_PRIVATE);
+  public void storeDeckReference(String dbDeckReference, String deckName, long deckId) {
+    final SharedPreferences decksDb = mContext.getSharedPreferences(dbDeckReference, Context.MODE_PRIVATE);
     decksDb.edit().putLong(deckName, deckId).apply();
   }
 
   /**
    * Save a mapping from modelName to modelId in the SharedPreferences
-   * @param dBModelReference
+   * @param dbModelReference
    * @param modelName
    * @param modelId
    */
-  public void storeModelReference(String dBModelReference, String modelName, long modelId) {
-    final SharedPreferences modelsDb = mContext.getSharedPreferences(dBModelReference, Context.MODE_PRIVATE);
+  public void storeModelReference(String dbModelReference, String modelName, long modelId) {
+    final SharedPreferences modelsDb = mContext.getSharedPreferences(dbModelReference, Context.MODE_PRIVATE);
     modelsDb.edit().putLong(modelName, modelId).apply();
   }
 
@@ -223,13 +217,13 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
    * required number of fields then return that ID (even though it may have since
    * been renamed) If there's a model from #getModelList with modelName and
    * required number of fields then return its ID Otherwise return null
-   * @param dBModelReference
+   * @param dbModelReference
    * @param modelName the name of the model to find
    * @param numFields the minimum number of fields the model is required to have
    * @return the model ID or null if something went wrong
    */
-  private Long findModelIdByName(String dBModelReference, String modelName, int numFields) {
-    SharedPreferences modelsDb = mContext.getSharedPreferences(dBModelReference, Context.MODE_PRIVATE);
+  private Long findModelIdByName(String dbModelReference, String modelName, int numFields) {
+    SharedPreferences modelsDb = mContext.getSharedPreferences(dbModelReference, Context.MODE_PRIVATE);
     long prefsModelId = modelsDb.getLong(modelName, -1L);
     // if we have a reference saved to modelName and it exists and has at least
     // numFields then return it
@@ -257,12 +251,12 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
    * SharedPreferences, and that deck exist in AnkiDroid (i.e. it was renamed),
    * then use that deck.Note: this deck will not be found if your app is
    * re-installed If there's no reference to deckName anywhere then return null
-   * @param dBDeckReference
+   * @param dbDeckReference
    * @param deckName the name of the deck to find
    * @return the did of the deck in Anki
    */
-  private Long findDeckIdByName(String dBDeckReference, String deckName) {
-    SharedPreferences decksDb = mContext.getSharedPreferences(dBDeckReference, Context.MODE_PRIVATE);
+  private Long findDeckIdByName(String dbDeckReference, String deckName) {
+    SharedPreferences decksDb = mContext.getSharedPreferences(dbDeckReference, Context.MODE_PRIVATE);
     // Look for deckName in the deck list
     Long did = _getDeckId(deckName);
     if (did != null) {
@@ -303,8 +297,8 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
    * Check if the AnkiDroid API is available on the phone
    * @param deckName - null for default deck.
    * @param modelName
-   * @param dBDeckReference
-   * @param dBModelReference
+   * @param dbDeckReference
+   * @param dbModelReference
    * @param incomingModelFields
    * @param incomingValueFields
    * @param incomingTags
@@ -315,7 +309,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
    * @return might be null if there was an error
    */
   @ReactMethod
-  public void addNote(String deckName, String modelName, String dBDeckReference, String dBModelReference,
+  public void addNote(String deckName, String modelName, String dbDeckReference, String dbModelReference,
       ReadableArray incomingModelFields, ReadableArray incomingValueFields, ReadableArray incomingTags,
       ReadableArray incomingCardNames, ReadableArray incomingQuestionFormat, ReadableArray incomingAnswerFormat,
       String css, Promise promise) {
@@ -330,25 +324,25 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
       // to account for no tags
       Set<String> tags = tagArray == null ? null : new HashSet<String>(Arrays.asList(tagArray));
 
-      Long deckId = getDeckId(dBDeckReference, deckName);
+      Long deckId = getDeckId(dbDeckReference, deckName);
 
       if ((deckId == null) && (deckName != null)) {
-        promise.resolve("FAILED_TO_CREATE_DECK");
+        promise.resolve(FAILED_TO_CREATE_DECK);
         return;
       }
 
-      Long modelId = getModelId(dBModelReference, modelName, modelFields, deckId, cardNames, questionFormat,
+      Long modelId = getModelId(dbModelReference, modelName, modelFields, deckId, cardNames, questionFormat,
           answerFormat, css);
 
       if (modelId == null) {
-        promise.resolve("FAILED_TO_CREATE_MODEL");
+        promise.resolve(FAILED_TO_CREATE_MODEL);
         return;
       }
 
       Long addedNoteId = getApi().addNote(modelId, deckId, valueFields, tags);
 
       if (addedNoteId == null) {
-        promise.resolve("FAILED_TO_ADD_NOTE");
+        promise.resolve(FAILED_TO_ADD_NOTE);
       } else {
         promise.resolve(addedNoteId.toString());
       }

@@ -1,15 +1,30 @@
 {
   "name": "react-native-ankidroid",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A react native wrapper for the AnkiDroid API",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "android/**/*",
+    "dist/**/*"
+  ],
+  "typescript": {
+    "definition": "dist/index.d.ts"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "lint": "tslint -p tsconfig.json",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "npm run format && git add -A src",
+    "postversion": "git push && git push --tags"
   },
   "keywords": [
     "react-native",
     "ankidroid",
-    "anki"
+    "anki",
+    "android"
   ],
   "author": "Ivan Schurawel (https://github.com/is343)",
   "bugs": {
@@ -23,5 +38,11 @@
   "license": "MIT",
   "peerDependencies": {
     "react-native": "^0.41.2"
+  },
+  "devDependencies": {
+    "@types/react-native": "^0.56.24",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.15.0",
+    "typescript": "^3.0.3"
   }
 }

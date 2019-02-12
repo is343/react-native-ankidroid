@@ -6,9 +6,9 @@ React Native wrapper for the AnkiDroid API
 
 ## Getting started
 
-`npm install react-native-ankidroid --save`
+- `npm install react-native-ankidroid --save`
 _or_
-`yarn add react-native-ankidroid`
+- `yarn add react-native-ankidroid`
 
 ### Mostly automatic installation
 
@@ -56,8 +56,8 @@ AnkiDroid.**\_\_\_\_\_\_\_\_\_\_** \_\_
 
 | Params           |   Type   | Required | Default | Description                                                                                                               |
 | ---------------- | :------: | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
-| dBDeckReference  |  string  | true     | --      | Deck reference name to store locally with the AnkiDroid database                                                          |
-| dBModelReference |  string  | true     | --      | Model reference name to store locally with the AnkiDroid database                                                         |
+| dbDeckReference  |  string  | true     | --      | Deck reference name to store locally with the AnkiDroid database                                                          |
+| dbModelReference |  string  | true     | --      | Model reference name to store locally with the AnkiDroid database                                                         |
 | modelFields      | string[] | true     | --      | The names of the fields used for the note's model during creation / use _(modelFields.length === valueFields.length)_     |
 | valueFields      | string[] | true     | --      | The values for the corresponding model fields. _(valueFields.length === modelFields.length)_                              |
 | cardNames        | string[] | true     | --      | Names for the front/back sides of the model _(cardNames.length === 2)_                                                    |

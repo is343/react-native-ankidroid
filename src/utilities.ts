@@ -70,7 +70,7 @@ export const checkForAddNoteErrors = (noteData: NoteData): Errors => {
  * @param valueFields
  */
 const checkValidFields = (modelFields: string[], valueFields: string[]) => {
-  try{
+  try {
     if (
       modelFields.length !== valueFields.length &&
       Array.isArray(modelFields) &&
@@ -83,7 +83,7 @@ const checkValidFields = (modelFields: string[], valueFields: string[]) => {
       )
       return false
     }
-  } catch(error) {
+  } catch (error) {
     console.warn(
       MODULE_NAME,
       ErrorText.ARGUMENT_TYPE,
@@ -91,7 +91,7 @@ const checkValidFields = (modelFields: string[], valueFields: string[]) => {
       error.toString(),
     )
     return false
-}
+  }
   return true
 }
 /**
@@ -103,37 +103,37 @@ const checkArrayLength = (
   noteDataValue: string | string[],
   noteDataKey: string,
 ): boolean => {
-  try{
-  switch (noteDataKey) {
-    case NoteDataKeys.cardNames:
-      if (noteDataValue.length === 2 && Array.isArray(noteDataValue))
+  try {
+    switch (noteDataKey) {
+      case NoteDataKeys.cardNames:
+        if (noteDataValue.length === 2 && Array.isArray(noteDataValue))
+          return true
+        break
+      case NoteDataKeys.questionFormat:
+        if (noteDataValue.length === 2 && Array.isArray(noteDataValue))
+          return true
+        break
+      case NoteDataKeys.answerFormat:
+        if (noteDataValue.length === 2 && Array.isArray(noteDataValue))
+          return true
+        break
+      default:
         return true
-      break
-    case NoteDataKeys.questionFormat:
-      if (noteDataValue.length === 2 && Array.isArray(noteDataValue))
-        return true
-      break
-    case NoteDataKeys.answerFormat:
-      if (noteDataValue.length === 2 && Array.isArray(noteDataValue))
-        return true
-      break
-    default:
-      return true
+    }
+    console.warn(
+      MODULE_NAME,
+      ErrorText.ARGUMENT_TYPE,
+      `${noteDataKey} ${ErrorText.ARRAY_LENGTH_2}`,
+    )
+  } catch (error) {
+    console.warn(
+      MODULE_NAME,
+      ErrorText.ARGUMENT_TYPE,
+      `${noteDataKey} ${ErrorText.ARRAY_LENGTH_2}`,
+      error.toString(),
+    )
+    return false
   }
-  console.warn(
-    MODULE_NAME,
-    ErrorText.ARGUMENT_TYPE,
-    `${noteDataKey} ${ErrorText.ARRAY_LENGTH_2}`,
-  )
-} catch(error) {
-  console.warn(
-    MODULE_NAME,
-    ErrorText.ARGUMENT_TYPE,
-    `${noteDataKey} ${ErrorText.ARRAY_LENGTH_2}`,
-    error.toString(),
-  )
-  return false
-}
   return false
 }
 /**

@@ -66,7 +66,7 @@ export const requestPermission = async (
 }
 
 /**
- * Create deck, model, references, and create note. Once the deck, model, and references
+ * Create deck, model, references, and then creates a new note. Once the deck, model, and references
  * are created, all newly created notes must have the correct matching info
  * - deckName: `string` - `null` for default deck.
  * - modelName: `string`
@@ -81,7 +81,8 @@ export const requestPermission = async (
  * - css: `string` - `null` for default CSS.
  * @param noteData object with the above values
  * @param permissionRational optional `PermissionsAndroid` message to show when requesting permissions
- * @return might return an error text if something goes wrong
+ * @return the added note ID
+ * @return error string if something goes wrong
  */
 export const addNote = async (
   noteData: NoteData,
@@ -106,7 +107,7 @@ export const addNote = async (
     css = null,
   } = noteData
 
-  // check for errors with the default values added
+  // check for errors with the default null values added
   const errorCheckResults = checkForAddNoteErrors({
     ...noteData,
     deckName,

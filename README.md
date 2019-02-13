@@ -54,8 +54,8 @@ AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
 
 | Params           |   Type   | Required | Default | Description                                                                                                               |
 | ---------------- | :------: | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
-| dbDeckReference  |  string  | true     | --      | Deck reference name to store locally with the AnkiDroid database                                                          |
-| dbModelReference |  string  | true     | --      | Model reference name to store locally with the AnkiDroid database                                                         |
+| dbDeckReference  |  string  | true     | --      | Deck reference name to store locally in SharedPreferences                                                                 |
+| dbModelReference |  string  | true     | --      | Model reference name to store locally in SharedPreferences                                                                |
 | modelFields      | string[] | true     | --      | The names of the fields used for the note's model during creation / use _(modelFields.length === valueFields.length)_     |
 | valueFields      | string[] | true     | --      | The values for the corresponding model fields. _(valueFields.length === modelFields.length)_                              |
 | cardNames        | string[] | true     | --      | Names for the front/back sides of the model _(cardNames.length === 2)_                                                    |
@@ -66,6 +66,117 @@ AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
 | tags             | string[] | false    | null    | Tags to attach to added notes                                                                                             |
 | css              |  string  | false    | null    | css styling information to be shared across all cards. _(null for default CSS)_                                           |
 
+## Gotchas
+
+- Once a model or reference has been created with a certain name, the format **must** match for all subsequent cards you wish to create using said model
+- If you intend to change the format in any way, you must use new names as a reference
+
+## Example
+
+```javascript
+///////////////////////////////////
+// SETTING UP THE DECK AND MODEL //
+///////////////////////////////////
+
+// Name of deck which will be created in AnkiDroid
+const deckName = "API Sample";
+// Name of model which will be created in AnkiDroid (can be any string)
+const modelName = "com.yourapp.apisample";
+// Used to save a reference to this deck in the SharedPreferences (can be any string)
+const dbDeckReference = "com.your.app.api.decks";
+// Used to save a reference to this model in the SharedPreferences (can be any string)
+const dbModelReference = "com.your.app.api.models";
+// Optional space separated list of tags to add to every note
+const tags = ["API_Sample", "my", "tags"];
+// List of field names that will be used in AnkiDroid model
+const modelFields = [
+  "Word",
+  "Translation",
+  "Meaning",
+  "Grammar",
+  "Idiom",
+  "IdiomTranslation",
+  "IdiomMeaning"
+];
+// List of card names that will be used in AnkiDroid (one for each direction of learning)
+const cardNames = ["Korean>English", "English>Korean"];
+// CSS to share between all the cards (optional). User will need to install the NotoSans font by themselves
+const css =
+  ".card {\n" +
+  " font-family: NotoSansKR;\n" +
+  " font-size: 24px;\n" +
+  " text-align: center;\n" +
+  " color: black;\n" +
+  " background-color: white;\n" +
+  " word-wrap: break-word;\n" +
+  "}\n" +
+  "@font-face { font-family: \"NotoSansKR\"; src: url('_NotoSansKR-Regular.otf'); }\n" +
+  "@font-face { font-family: \"NotoSansKR\"; src: url('_NotoSansKR-Bold.otf'); font-weight: bold; }\n" +
+  "\n" +
+  ".big { font-size: 48px; }\n" +
+  ".small { font-size: 18px;}\n";
+// Template for the question of each card
+const questionFmt1 = "<div class=big>{{Word}}</div><br>{{Grammar}}";
+const questionFmt2 =
+  "{{Meaning}}<br><br><div class=small>{{Grammar}}<br><br>({{Idiom}})</div>";
+const questionFormat = [questionFmt1, questionFmt2];
+// Template for the answer (use identical for both sides)
+const answerFmt1 =
+  "<div class=big>{{Translation}}</div><br>{{Meaning}}\n" +
+  "<br><br>\n" +
+  "{{IdiomTranslation}}<br>\n" +
+  "<a href=\"#\" onclick=\"document.getElementById('hint').style.display='block';return false;\">Idiom Meaning</a>\n" +
+  '<div id="hint" style="display: none">{{IdiomMeaning}}</div>\n' +
+  "<br><br>\n" +
+  "{{Grammar}}<br><div class=small>{{Tags}}</div>";
+const answerFormat = [answerFmt1, answerFmt1];
+
+//////////////////
+// ADDING NOTES //
+//////////////////
+
+const deckModelSetup = {
+  deckName,
+  modelName,
+  dbDeckReference,
+  dbModelReference,
+  modelFields,
+  tags,
+  cardNames,
+  questionFormat,
+  answerFormat,
+  css
+};
+
+const valueFields = [
+  "사랑",
+  "love",
+  "The attitude of sincerely caring about someone out of affection.",
+  "noun",
+  "사랑을 속삭이다",
+  "whisper love",
+  "For lovers to have a conversation of love."
+];
+
+AnkiDroid.addNote({ ...deckModelSetup, valueFields });
+// returns the added note ID
+
+const noteData = {
+  ...deckModelSetup,
+  valueFields: [
+    "여행사",
+    "travel agency",
+    "A company that offers an array of services for travel, including transportation, accomodaton, tour guide, etc.",
+    "noun",
+    "",
+    "",
+    ""
+  ]
+};
+
+AnkiDroid.addNote(noteData);
+```
+
 ## Card setup / References
 
 - [Anki Cards and Templates Documentation](https://apps.ankiweb.net/docs/manual.html#cards-and-templates)
@@ -73,8 +184,8 @@ AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
 
 ## Todo
 
-- [ ] add multiple notes at once
 - [ ] add basic card
 - [ ] AnkiDroid intent API
-- [ ] detailed examples
+- [ ] add multiple notes at once
+- [x] ~~detailed examples~~
 - [x] ~~typescript~~

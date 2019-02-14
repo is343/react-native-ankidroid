@@ -68,7 +68,7 @@ export const requestPermission = async (
 /**
  * Create deck, model, references, and then creates a new note. Once the deck, model, and references
  * are created, all newly created notes must have the correct matching info
- * - deckName: `string` - `null` for default deck.
+ * - deckName: `string`
  * - modelName: `string`
  * - dbDeckReference: `string`
  * - dbModelReference: `string`
@@ -94,7 +94,7 @@ export const addNote = async (
 
   // destructure with default values
   const {
-    deckName = null,
+    deckName,
     modelName,
     dbDeckReference,
     dbModelReference,

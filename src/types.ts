@@ -35,7 +35,7 @@ export enum Errors {
  * the data object for the addNote method
  */
 export interface NoteData {
-  deckName?: string
+  deckName: string
   modelName: string
   dbDeckReference: string
   dbModelReference: string

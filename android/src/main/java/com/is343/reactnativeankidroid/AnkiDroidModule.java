@@ -104,13 +104,10 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
   /**
    * get the deck id
    * @param dbDeckReference
-   * @param deckName - null for default deck
+   * @param deckName
    * @return might be null if there was a problem, or to return the default deck
    */
   private Long getDeckId(String dbDeckReference, String deckName) {
-    if (deckName == null) {
-      return null;
-    }
     Long did = findDeckIdByName(dbDeckReference, deckName);
     if (did == null) {
       did = getApi().addNewDeck(deckName);
@@ -122,7 +119,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
   /**
    * get model id
    * @param dbModelReference
-   * @param deckId - null for default deck.
+   * @param deckId
    * @param modelName
    * @param modelFields
    * @param cardNames
@@ -293,7 +290,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
 
   /**
    * Check if the AnkiDroid API is available on the phone
-   * @param deckName - null for default deck.
+   * @param deckName
    * @param modelName
    * @param dbDeckReference
    * @param dbModelReference
@@ -324,7 +321,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
 
       Long deckId = getDeckId(dbDeckReference, deckName);
 
-      if ((deckId == null) && (deckName != null)) {
+      if (deckId == null) {
         promise.resolve(FAILED_TO_CREATE_DECK);
         return;
       }

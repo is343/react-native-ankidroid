@@ -62,7 +62,7 @@ AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
 | questionFormat   | string[] | true     | --      | Question formatting for each direction of _(questionFormat.length === 2)_ **variable names MUST match modelFields names** |
 | answerFormat     | string[] | true     | --      | Answer formatting for each direction of _(answerFormat.length === 2)_ **variable names MUST match modelFields names**     |
 | modelName        |  string  | true     | --      | Name of the model used / created for notes                                                                                |
-| deckName         |  string  | false    | null    | Name of the deck to create / add notes to _(null for Default Deck)_                                                       |
+| deckName         |  string  | true     | --      | Name of the deck to create / add notes to                                                                                 |
 | tags             | string[] | false    | null    | Tags to attach to added notes                                                                                             |
 | css              |  string  | false    | null    | css styling information to be shared across all cards. _(null for default CSS)_                                           |
 
@@ -120,7 +120,7 @@ const questionFmt1 = "<div class=big>{{Word}}</div><br>{{Grammar}}";
 const questionFmt2 =
   "{{Meaning}}<br><br><div class=small>{{Grammar}}<br><br>({{Idiom}})</div>";
 const questionFormat = [questionFmt1, questionFmt2];
-// Template for the answer (use identical for both sides)
+// Template for the answer (this example is identical for both sides)
 const answerFmt1 =
   "<div class=big>{{Translation}}</div><br>{{Meaning}}\n" +
   "<br><br>\n" +
@@ -184,8 +184,13 @@ AnkiDroid.addNote(noteData);
 
 ## Todo
 
+- [ ] add to default deck
 - [ ] add basic card
 - [ ] AnkiDroid intent API
 - [ ] add multiple notes at once
 - [x] ~~detailed examples~~
 - [x] ~~typescript~~
+
+## Contributions
+
+Pull requests welcome!

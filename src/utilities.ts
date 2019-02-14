@@ -48,9 +48,7 @@ export const checkForAddNoteErrors = (noteData: NoteData): Errors => {
     // check for null exceptions
     if (
       noteData[key] === null &&
-      (key === NoteDataKeys.deckName ||
-        key === NoteDataKeys.tags ||
-        key === NoteDataKeys.css)
+      (key === NoteDataKeys.tags || key === NoteDataKeys.css)
     ) {
       continue
     }
@@ -144,7 +142,7 @@ const logTypeError = (noteDataKey: string): void => {
   let errorText: ErrorText = null
   switch (noteDataKey) {
     case NoteDataKeys.deckName:
-      errorText = ErrorText.STRING_OR_NULL
+      errorText = ErrorText.STRING
       break
     case NoteDataKeys.modelName:
       errorText = ErrorText.STRING

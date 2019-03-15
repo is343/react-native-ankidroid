@@ -289,7 +289,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
   }
 
   /**
-   * Check if the AnkiDroid API is available on the phone
+   * Create the new note and add it to the deck
    * @param deckName
    * @param modelName
    * @param dbDeckReference

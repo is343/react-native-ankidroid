@@ -110,7 +110,6 @@ export const addNote = async (
   // check for errors with the default null values added
   const errorCheckResults = checkForAddNoteErrors({
     ...noteData,
-    deckName,
     tags,
     css,
   })

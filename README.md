@@ -30,16 +30,43 @@ React Native wrapper for the AnkiDroid API
    ```
      compile project(':react-native-ankidroid')
    ```
+4. Add the following line to `/android/app/src/main/res/AndroidManifest.xml`:
+
+   ```java
+   <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:tools="http://schemas.android.com/tools"
+       package="com.yourpackage.name">
+
+       <uses-permission android:name="android.permission.INTERNET" />
+       <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+
+       <application
+         android:name="com.yourpackage.name.MainApplication"
+         android:label="@string/app_name"
+         android:icon="@mipmap/ic_launcher"
+         android:allowBackup="false"
+         android:theme="@style/AppTheme"
+         tools:replace="android:allowBackup" // <---- ADD HERE
+         >
+   ```
+
+This will prevent the following error by forcing the compiler to use your app's attribute:
+
+    Execution failed for task ':app:processDebugManifest'.
+    > Manifest merger failed : Attribute application@allowBackup value=(false) from AndroidManifest.xml:15:7-34 is also present at [com.ichi2.anki:api:1.1.0alpha6] AndroidManife
+    st.xml:14:9-35 value=(true).
+    Suggestion: add 'tools:replace="android:allowBackup"' to <application> element at AndroidManifest.xml:7:5-117 to override.
 
 ## Usage
 
 ```javascript
 import AnkiDroid from "react-native-ankidroid";
 
-AnkiDroid.isApiAvailable();
+await AnkiDroid.isApiAvailable();
 ```
 
 AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
+**(All methods return Promises)**
 
 - **isApiAvailable()** - checks if the AnkiDroid API is avaiable (AnkiDroid is installed on the device)
   _in order to access the API, AnkiDroid may need to be installed before the react native app_

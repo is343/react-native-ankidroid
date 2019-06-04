@@ -1,5 +1,5 @@
 import { NativeModules, PermissionsAndroid, Rationale } from "react-native"
-import { Errors, ErrorText, MODULE_NAME, NoteData } from "./types"
+import { Errors, ErrorText, MODULE_NAME, NoteData, PermissionResults } from './types';
 import {
   androidCheck,
   checkForAddNoteErrors,
@@ -14,7 +14,7 @@ const { AnkiDroidModule } = NativeModules
  */
 export async function isApiAvailable(): Promise<boolean>{
   if (!androidCheck()) return false
-  let apiAvailable
+  let apiAvailable: boolean
   try {
     apiAvailable = await AnkiDroidModule.isApiAvailable()
   } catch (error) {
@@ -30,9 +30,15 @@ export async function isApiAvailable(): Promise<boolean>{
  */
 export async function checkPermission(): Promise<boolean>{
   if (!androidCheck()) return false
-  const permissionName = await getPermissionName()
+  let permissionName: string
+  try{
+    permissionName = await getPermissionName()
+  } catch (error){
+    console.warn(MODULE_NAME, error.toString())
+    return null
+  }
   if (!permissionName) return false
-  let permission
+  let permission: boolean
   try {
     permission = await PermissionsAndroid.check(permissionName)
   } catch (error) {
@@ -45,14 +51,21 @@ export async function checkPermission(): Promise<boolean>{
 /**
  * Request AnkiDroid API permissions
  * @param rationale optional `PermissionsAndroid` message to show when requesting permissions
+ * @param returns optional `PermissionsAndroid` message to show when requesting permissions
  */
 export async function requestPermission(
   rationale: Rationale = null,
-): Promise<string>{
-  if (!androidCheck()) return "denied"
-  const permissionName = await getPermissionName()
-  if (!permissionName) return "denied"
-  let permissionRequest: string
+): Promise<PermissionResults>{
+  if (!androidCheck()) return PermissionResults.DENIED
+  let permissionName: string
+  try{
+    permissionName = await getPermissionName()
+  } catch (error){
+    console.warn(MODULE_NAME, error.toString())
+    return null
+  }
+  if (!permissionName) return PermissionResults.DENIED
+  let permissionRequest: PermissionResults
   try {
     permissionRequest = await PermissionsAndroid.request(
       permissionName,
@@ -115,19 +128,26 @@ export async function addNote(
   })
   if (errorCheckResults) return errorCheckResults
 
-  const addedNoteId: string = await AnkiDroidModule.addNote(
-    deckName,
-    modelName,
-    dbDeckReference,
-    dbModelReference,
-    modelFields,
-    valueFields,
-    tags,
-    cardNames,
-    questionFormat,
-    answerFormat,
-    css,
-  )
+  let addedNoteId: string
+
+  try{
+    addedNoteId = await AnkiDroidModule.addNote(
+      deckName,
+      modelName,
+      dbDeckReference,
+      dbModelReference,
+      modelFields,
+      valueFields,
+      tags,
+      cardNames,
+      questionFormat,
+      answerFormat,
+      css,
+      )
+  } catch (error){
+    console.warn(MODULE_NAME, error.toString())
+    return Errors.UNKNOWN_ERROR
+  }
   try {
     const addedNoteIdInt = Number(addedNoteId)
 

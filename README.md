@@ -127,35 +127,30 @@ const modelFields = [
 ];
 // List of card names that will be used in AnkiDroid (one for each direction of learning)
 const cardNames = ["Korean>English", "English>Korean"];
-// CSS to share between all the cards (optional). User will need to install the NotoSans font by themselves
-const css =
-  ".card {\n" +
-  " font-family: NotoSansKR;\n" +
-  " font-size: 24px;\n" +
-  " text-align: center;\n" +
-  " color: black;\n" +
-  " background-color: white;\n" +
-  " word-wrap: break-word;\n" +
-  "}\n" +
-  "@font-face { font-family: \"NotoSansKR\"; src: url('_NotoSansKR-Regular.otf'); }\n" +
-  "@font-face { font-family: \"NotoSansKR\"; src: url('_NotoSansKR-Bold.otf'); font-weight: bold; }\n" +
-  "\n" +
-  ".big { font-size: 48px; }\n" +
-  ".small { font-size: 18px;}\n";
+// CSS to share between all the cards (optional).
+const css = `.card {
+  font-family: NotoSansKR;
+  font-size: 24px;
+  text-align: center;
+  color: black;
+  background-color: white;
+  word-wrap: break-word;
+}
+.big { font-size: 48px; }
+.small { font-size: 18px;}`;
 // Template for the question of each card
 const questionFmt1 = "<div class=big>{{Word}}</div><br>{{Grammar}}";
 const questionFmt2 =
   "{{Meaning}}<br><br><div class=small>{{Grammar}}<br><br>({{Idiom}})</div>";
 const questionFormat = [questionFmt1, questionFmt2];
 // Template for the answer (this example is identical for both sides)
-const answerFmt1 =
-  "<div class=big>{{Translation}}</div><br>{{Meaning}}\n" +
-  "<br><br>\n" +
-  "{{IdiomTranslation}}<br>\n" +
-  "<a href=\"#\" onclick=\"document.getElementById('hint').style.display='block';return false;\">Idiom Meaning</a>\n" +
-  '<div id="hint" style="display: none">{{IdiomMeaning}}</div>\n' +
-  "<br><br>\n" +
-  "{{Grammar}}<br><div class=small>{{Tags}}</div>";
+const answerFmt1 = `<div class=big>{{Translation}}</div><br>{{Meaning}}
+<br><br>
+{{IdiomTranslation}}<br>
+<a href=\"#\" onclick=\"document.getElementById('hint').style.display='block';return false;\">Idiom Meaning</a>
+<div id="hint" style="display: none">{{IdiomMeaning}}</div>
+<br><br>
+{{Grammar}}<br><div class=small>{{Tags}}</div>`;
 const answerFormat = [answerFmt1, answerFmt1];
 
 //////////////////
@@ -186,7 +181,7 @@ const valueFields = [
 ];
 
 AnkiDroid.addNote({ ...deckModelSetup, valueFields });
-// returns the added note ID
+// returns a promise that returns the added note ID
 
 const noteData = {
   ...deckModelSetup,

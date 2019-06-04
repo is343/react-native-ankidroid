@@ -32,6 +32,15 @@ export enum Errors {
   FAILED_TO_ADD_NOTE = "FAILED_TO_ADD_NOTE",
 }
 /**
+ * Results from `requestPermission`
+ * - same as `PermissionsAndroid.RESULTS` from react-native
+ */
+export enum PermissionResults {
+  GRANTED = "granted",
+  DENIED = "denied",
+  NEVER_ASK_AGAIN = "never_ask_again",
+}
+/**
  * the data object for the addNote method
  */
 export interface NoteData {

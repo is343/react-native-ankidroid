@@ -106,13 +106,13 @@ AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
 ///////////////////////////////////
 
 // Name of deck which will be created in AnkiDroid
-const deckName = "API Sample";
+const deckName = "API Sample Name";
 // Name of model which will be created in AnkiDroid (can be any string)
-const modelName = "com.yourapp.apisample";
+const modelName = "Sample Model Name";
 // Used to save a reference to this deck in the SharedPreferences (can be any string)
-const dbDeckReference = "com.your.app.api.decks";
+const dbDeckReference = "com.your.app.decks";
 // Used to save a reference to this model in the SharedPreferences (can be any string)
-const dbModelReference = "com.your.app.api.models";
+const dbModelReference = "com.your.app.models";
 // Optional space separated list of tags to add to every note
 const tags = ["API_Sample", "my", "tags"];
 // List of field names that will be used in AnkiDroid model

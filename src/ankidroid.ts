@@ -139,7 +139,7 @@ export async function addNote(
   })
   if (errorCheckResults) return errorCheckResults
 
-  let addedNoteId: string
+  let addedNoteId: string | Errors
 
   try {
     addedNoteId = await AnkiDroidModule.addNote(

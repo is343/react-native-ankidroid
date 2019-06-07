@@ -14,7 +14,7 @@ const { AnkiDroidModule } = NativeModules
  * - display error message if not android
  * @returns `true` if android
  */
-export const androidCheck = (): boolean => {
+export function androidCheck(): boolean {
   if (Platform.OS === "android") {
     return true
   }
@@ -24,7 +24,7 @@ export const androidCheck = (): boolean => {
 /**
  * Get the AnkiDroid API permission name
  */
-export const getPermissionName = async (): Promise<any> => {
+export async function getPermissionName(): Promise<any>{
   let permissionName
   try {
     permissionName = await AnkiDroidModule.getPermissionName()
@@ -39,7 +39,7 @@ export const getPermissionName = async (): Promise<any> => {
  * @param noteData
  * @returns `null` if no errors
  */
-export const checkForAddNoteErrors = (noteData: NoteData): Errors => {
+export function checkForAddNoteErrors(noteData: NoteData): Errors{
   const { modelFields, valueFields } = noteData
   if (!checkValidFields(modelFields, valueFields)) return Errors.TYPE_ERROR
   for (var key in noteData) {
@@ -67,7 +67,7 @@ export const checkForAddNoteErrors = (noteData: NoteData): Errors => {
  * @param modelFields
  * @param valueFields
  */
-const checkValidFields = (modelFields: string[], valueFields: string[]) => {
+function checkValidFields(modelFields: string[], valueFields: string[]){
   try {
     if (
       modelFields.length !== valueFields.length &&
@@ -97,10 +97,10 @@ const checkValidFields = (modelFields: string[], valueFields: string[]) => {
  * @param noteDataValue
  * @param noteDataKey
  */
-const checkArrayLength = (
+function checkArrayLength(
   noteDataValue: string | string[],
   noteDataKey: string,
-): boolean => {
+): boolean{
   try {
     switch (noteDataKey) {
       case NoteDataKeys.cardNames:
@@ -138,7 +138,7 @@ const checkArrayLength = (
  * logs errors
  * @param noteDataKey
  */
-const logTypeError = (noteDataKey: string): void => {
+function logTypeError(noteDataKey: string): void{
   let errorText: ErrorText = null
   switch (noteDataKey) {
     case NoteDataKeys.deckName:
@@ -190,7 +190,7 @@ const logTypeError = (noteDataKey: string): void => {
  * @param itemToCheck
  * @returns `true` if valid
  */
-export const checkValidString = (itemToCheck: string | string[]): boolean => {
+export function checkValidString(itemToCheck: string | string[]): boolean{
   if (Array.isArray(itemToCheck)) {
     return itemToCheck.every(item => checkValidString(item))
   } else {

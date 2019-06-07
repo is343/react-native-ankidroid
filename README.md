@@ -30,16 +30,43 @@ React Native wrapper for the AnkiDroid API
    ```
      compile project(':react-native-ankidroid')
    ```
+4. Add the following line to `/android/app/src/main/res/AndroidManifest.xml`:
+
+   ```java
+   <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:tools="http://schemas.android.com/tools"
+       package="com.yourpackage.name">
+
+       <uses-permission android:name="android.permission.INTERNET" />
+       <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+
+       <application
+         android:name="com.yourpackage.name.MainApplication"
+         android:label="@string/app_name"
+         android:icon="@mipmap/ic_launcher"
+         android:allowBackup="false"
+         android:theme="@style/AppTheme"
+         tools:replace="android:allowBackup" // <---- ADD HERE
+         >
+   ```
+
+This will prevent the following error by forcing the compiler to use your app's attribute:
+
+    Execution failed for task ':app:processDebugManifest'.
+    > Manifest merger failed : Attribute application@allowBackup value=(false) from AndroidManifest.xml:15:7-34 is also present at [com.ichi2.anki:api:1.1.0alpha6] AndroidManife
+    st.xml:14:9-35 value=(true).
+    Suggestion: add 'tools:replace="android:allowBackup"' to <application> element at AndroidManifest.xml:7:5-117 to override.
 
 ## Usage
 
 ```javascript
 import AnkiDroid from "react-native-ankidroid";
 
-AnkiDroid.isApiAvailable();
+await AnkiDroid.isApiAvailable();
 ```
 
 AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
+**(All methods return Promises)**
 
 - **isApiAvailable()** - checks if the AnkiDroid API is avaiable (AnkiDroid is installed on the device)
   _in order to access the API, AnkiDroid may need to be installed before the react native app_
@@ -79,13 +106,13 @@ AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
 ///////////////////////////////////
 
 // Name of deck which will be created in AnkiDroid
-const deckName = "API Sample";
+const deckName = "API Sample Name";
 // Name of model which will be created in AnkiDroid (can be any string)
-const modelName = "com.yourapp.apisample";
+const modelName = "Sample Model Name";
 // Used to save a reference to this deck in the SharedPreferences (can be any string)
-const dbDeckReference = "com.your.app.api.decks";
+const dbDeckReference = "com.your.app.decks";
 // Used to save a reference to this model in the SharedPreferences (can be any string)
-const dbModelReference = "com.your.app.api.models";
+const dbModelReference = "com.your.app.models";
 // Optional space separated list of tags to add to every note
 const tags = ["API_Sample", "my", "tags"];
 // List of field names that will be used in AnkiDroid model
@@ -100,35 +127,30 @@ const modelFields = [
 ];
 // List of card names that will be used in AnkiDroid (one for each direction of learning)
 const cardNames = ["Korean>English", "English>Korean"];
-// CSS to share between all the cards (optional). User will need to install the NotoSans font by themselves
-const css =
-  ".card {\n" +
-  " font-family: NotoSansKR;\n" +
-  " font-size: 24px;\n" +
-  " text-align: center;\n" +
-  " color: black;\n" +
-  " background-color: white;\n" +
-  " word-wrap: break-word;\n" +
-  "}\n" +
-  "@font-face { font-family: \"NotoSansKR\"; src: url('_NotoSansKR-Regular.otf'); }\n" +
-  "@font-face { font-family: \"NotoSansKR\"; src: url('_NotoSansKR-Bold.otf'); font-weight: bold; }\n" +
-  "\n" +
-  ".big { font-size: 48px; }\n" +
-  ".small { font-size: 18px;}\n";
+// CSS to share between all the cards (optional).
+const css = `.card {
+  font-family: NotoSansKR;
+  font-size: 24px;
+  text-align: center;
+  color: black;
+  background-color: white;
+  word-wrap: break-word;
+}
+.big { font-size: 48px; }
+.small { font-size: 18px;}`;
 // Template for the question of each card
 const questionFmt1 = "<div class=big>{{Word}}</div><br>{{Grammar}}";
 const questionFmt2 =
   "{{Meaning}}<br><br><div class=small>{{Grammar}}<br><br>({{Idiom}})</div>";
 const questionFormat = [questionFmt1, questionFmt2];
 // Template for the answer (this example is identical for both sides)
-const answerFmt1 =
-  "<div class=big>{{Translation}}</div><br>{{Meaning}}\n" +
-  "<br><br>\n" +
-  "{{IdiomTranslation}}<br>\n" +
-  "<a href=\"#\" onclick=\"document.getElementById('hint').style.display='block';return false;\">Idiom Meaning</a>\n" +
-  '<div id="hint" style="display: none">{{IdiomMeaning}}</div>\n' +
-  "<br><br>\n" +
-  "{{Grammar}}<br><div class=small>{{Tags}}</div>";
+const answerFmt1 = `<div class=big>{{Translation}}</div><br>{{Meaning}}
+<br><br>
+{{IdiomTranslation}}<br>
+<a href=\"#\" onclick=\"document.getElementById('hint').style.display='block';return false;\">Idiom Meaning</a>
+<div id="hint" style="display: none">{{IdiomMeaning}}</div>
+<br><br>
+{{Grammar}}<br><div class=small>{{Tags}}</div>`;
 const answerFormat = [answerFmt1, answerFmt1];
 
 //////////////////
@@ -159,7 +181,7 @@ const valueFields = [
 ];
 
 AnkiDroid.addNote({ ...deckModelSetup, valueFields });
-// returns the added note ID
+// returns a promise that returns the added note ID
 
 const noteData = {
   ...deckModelSetup,

@@ -1,5 +1,16 @@
-import { NativeModules, PermissionsAndroid, Rationale } from "react-native"
-import { Errors, ErrorText, MODULE_NAME, NoteData } from "./types"
+import {
+  NativeModules,
+  Permission,
+  PermissionsAndroid,
+  Rationale,
+} from "react-native"
+import {
+  Errors,
+  ErrorText,
+  MODULE_NAME,
+  NoteData,
+  PermissionResults,
+} from "./types"
 import {
   androidCheck,
   checkForAddNoteErrors,
@@ -12,9 +23,9 @@ const { AnkiDroidModule } = NativeModules
  * Check if the AnkiDroid API is available on the phone
  * @return `true` if the API is available to use
  */
-export const isApiAvailable = async (): Promise<boolean> => {
+export async function isApiAvailable(): Promise<boolean> {
   if (!androidCheck()) return false
-  let apiAvailable
+  let apiAvailable: boolean
   try {
     apiAvailable = await AnkiDroidModule.isApiAvailable()
   } catch (error) {
@@ -28,11 +39,17 @@ export const isApiAvailable = async (): Promise<boolean> => {
  * Check the permission status
  * @return `true` if permission have been granted
  */
-export const checkPermission = async (): Promise<boolean> => {
+export async function checkPermission(): Promise<boolean> {
   if (!androidCheck()) return false
-  const permissionName = await getPermissionName()
+  let permissionName: Permission
+  try {
+    permissionName = await getPermissionName()
+  } catch (error) {
+    console.warn(MODULE_NAME, error.toString())
+    return null
+  }
   if (!permissionName) return false
-  let permission
+  let permission: boolean
   try {
     permission = await PermissionsAndroid.check(permissionName)
   } catch (error) {
@@ -45,14 +62,21 @@ export const checkPermission = async (): Promise<boolean> => {
 /**
  * Request AnkiDroid API permissions
  * @param rationale optional `PermissionsAndroid` message to show when requesting permissions
+ * @param returns optional `PermissionsAndroid` message to show when requesting permissions
  */
-export const requestPermission = async (
+export async function requestPermission(
   rationale: Rationale = null,
-): Promise<string> => {
-  if (!androidCheck()) return "denied"
-  const permissionName = await getPermissionName()
-  if (!permissionName) return "denied"
-  let permissionRequest: string
+): Promise<PermissionResults | string> {
+  if (!androidCheck()) return PermissionResults.DENIED
+  let permissionName: Permission
+  try {
+    permissionName = await getPermissionName()
+  } catch (error) {
+    console.warn(MODULE_NAME, error.toString())
+    return null
+  }
+  if (!permissionName) return PermissionResults.DENIED
+  let permissionRequest: PermissionResults | string
   try {
     permissionRequest = await PermissionsAndroid.request(
       permissionName,
@@ -84,10 +108,10 @@ export const requestPermission = async (
  * @return the added note ID
  * @return error string if something goes wrong
  */
-export const addNote = async (
+export async function addNote(
   noteData: NoteData,
   permissionRational: Rationale = null,
-): Promise<number | Errors> => {
+): Promise<number | Errors> {
   if (!androidCheck()) return Errors.OS_ERROR
   const permissionStatus = await requestPermission(permissionRational)
   if (permissionStatus !== "granted") return Errors.PERMISSION_ERROR
@@ -110,25 +134,31 @@ export const addNote = async (
   // check for errors with the default null values added
   const errorCheckResults = checkForAddNoteErrors({
     ...noteData,
-    deckName,
     tags,
     css,
   })
   if (errorCheckResults) return errorCheckResults
 
-  const addedNoteId: string = await AnkiDroidModule.addNote(
-    deckName,
-    modelName,
-    dbDeckReference,
-    dbModelReference,
-    modelFields,
-    valueFields,
-    tags,
-    cardNames,
-    questionFormat,
-    answerFormat,
-    css,
-  )
+  let addedNoteId: string
+
+  try {
+    addedNoteId = await AnkiDroidModule.addNote(
+      deckName,
+      modelName,
+      dbDeckReference,
+      dbModelReference,
+      modelFields,
+      valueFields,
+      tags,
+      cardNames,
+      questionFormat,
+      answerFormat,
+      css,
+    )
+  } catch (error) {
+    console.warn(MODULE_NAME, error.toString())
+    return Errors.UNKNOWN_ERROR
+  }
   try {
     const addedNoteIdInt = Number(addedNoteId)
 

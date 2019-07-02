@@ -12,6 +12,8 @@ React Native wrapper for the AnkiDroid API
 
 `react-native link react-native-ankidroid`
 
+- Step 4 of the manual installation must still be done for production.
+
 ### Manual installation
 
 #### Android

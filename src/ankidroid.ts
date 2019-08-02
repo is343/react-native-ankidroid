@@ -20,7 +20,6 @@ const { AnkiDroidModule } = NativeModules
  * - dbDeckReference: `string`
  * - dbModelReference: `string`
  * - modelFields: `string[]`
- * - valueFields: `string[]`
  * - cardNames: `string[]`
  * - questionFormat: `string[]`
  * - answerFormat: `string[]`

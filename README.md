@@ -92,7 +92,7 @@ AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
 | tags             | string[] | null     | Tags to attach to added notes                                                                                             |
 | css              |  string  | null     | css styling information to be shared across all cards. _(null for default CSS)_                                           |
 
-## The Deck Class / the instance of your deck
+## The Deck Class
 
 - **addNote(valueFields, permissionRationale)**
   -- valueFields (see below)

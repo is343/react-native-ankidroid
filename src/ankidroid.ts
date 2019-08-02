@@ -1,97 +1,20 @@
-import {
-  NativeModules,
-  Permission,
-  PermissionsAndroid,
-  Rationale,
-} from "react-native"
+import { NativeModules, Rationale } from "react-native"
 import {
   Errors,
   ErrorText,
+  ModelSettings,
   MODULE_NAME,
-  NoteData,
-  PermissionResults,
+  Note,
+  NoteKeys,
 } from "./types"
-import {
-  androidCheck,
-  checkForAddNoteErrors,
-  getPermissionName,
-} from "./utilities"
+import { androidCheck, requestPermission } from "./utilities"
 
 const { AnkiDroidModule } = NativeModules
 
 /**
- * Check if the AnkiDroid API is available on the phone
- * @return `true` if the API is available to use
- */
-export async function isApiAvailable(): Promise<boolean> {
-  if (!androidCheck()) return false
-  let apiAvailable: boolean
-  try {
-    apiAvailable = await AnkiDroidModule.isApiAvailable()
-  } catch (error) {
-    apiAvailable = false
-    console.warn(MODULE_NAME, ErrorText.API, error)
-  }
-  return apiAvailable
-}
-
-/**
- * Check the permission status
- * @return `true` if permission have been granted
- */
-export async function checkPermission(): Promise<boolean> {
-  if (!androidCheck()) return false
-  let permissionName: Permission
-  try {
-    permissionName = await getPermissionName()
-  } catch (error) {
-    console.warn(MODULE_NAME, error.toString())
-    return null
-  }
-  if (!permissionName) return false
-  let permission: boolean
-  try {
-    permission = await PermissionsAndroid.check(permissionName)
-  } catch (error) {
-    permission = error
-    console.warn(MODULE_NAME, ErrorText.PERMISSIONS_CHECK, error)
-  }
-  return permission
-}
-
-/**
- * Request AnkiDroid API permissions
- * @param rationale optional `PermissionsAndroid` message to show when requesting permissions
- * @param returns optional `PermissionsAndroid` message to show when requesting permissions
- */
-export async function requestPermission(
-  rationale: Rationale = null,
-): Promise<PermissionResults | string> {
-  if (!androidCheck()) return PermissionResults.DENIED
-  let permissionName: Permission
-  try {
-    permissionName = await getPermissionName()
-  } catch (error) {
-    console.warn(MODULE_NAME, error.toString())
-    return null
-  }
-  if (!permissionName) return PermissionResults.DENIED
-  let permissionRequest: PermissionResults | string
-  try {
-    permissionRequest = await PermissionsAndroid.request(
-      permissionName,
-      rationale,
-    )
-  } catch (error) {
-    permissionRequest = error.toString()
-    console.warn(MODULE_NAME, ErrorText.PERMISSIONS_REQUEST, error)
-  }
-  return permissionRequest
-}
-
-/**
- * Create deck, model, references, and then creates a new note. Once the deck, model, and references
- * are created, all newly created notes must have the correct matching info
+ * Create deck, model, and references. Once set up, notes can be created.
+ *  All newly created notes must have the correct matching info.
+ * @constructor modelSettings object with the below values
  * - deckName: `string`
  * - modelName: `string`
  * - dbDeckReference: `string`
@@ -103,74 +26,238 @@ export async function requestPermission(
  * - answerFormat: `string[]`
  * - tags: `string[]` - `null` for no tags
  * - css: `string` - `null` for default CSS.
- * @param noteData object with the above values
- * @param permissionRational optional `PermissionsAndroid` message to show when requesting permissions
- * @return the added note ID
- * @return error string if something goes wrong
  */
-export async function addNote(
-  noteData: NoteData,
-  permissionRational: Rationale = null,
-): Promise<number | Errors> {
-  if (!androidCheck()) return Errors.OS_ERROR
-  const permissionStatus = await requestPermission(permissionRational)
-  if (permissionStatus !== "granted") return Errors.PERMISSION_ERROR
-
-  // destructure with default values
-  const {
-    deckName,
-    modelName,
-    dbDeckReference,
-    dbModelReference,
-    modelFields,
-    valueFields,
-    cardNames,
-    questionFormat,
-    answerFormat,
-    tags = null,
-    css = null,
-  } = noteData
-
-  // check for errors with the default null values added
-  const errorCheckResults = checkForAddNoteErrors({
-    ...noteData,
-    tags,
-    css,
-  })
-  if (errorCheckResults) return errorCheckResults
-
-  let addedNoteId: string | Errors
-
-  try {
-    addedNoteId = await AnkiDroidModule.addNote(
+export class Deck {
+  modelSettings: ModelSettings
+  constructor(modelSettings: ModelSettings) {
+    this.modelSettings = modelSettings
+  }
+  /**
+   * check all note values for errors
+   * @param note
+   * @returns `null` if no errors
+   */
+  private checkForAddNoteErrors(note: Note): Errors {
+    const { modelFields, valueFields } = note
+    if (!this.checkValidFields(modelFields, valueFields))
+      return Errors.TYPE_ERROR
+    for (var key in note) {
+      // skip loop if the property is from prototype
+      if (!note.hasOwnProperty(key)) continue
+      // check for null exceptions
+      if (
+        note[key] === null &&
+        (key === NoteKeys.tags || key === NoteKeys.css)
+      ) {
+        continue
+      }
+      if (!this.checkArrayLength(note[key], key)) {
+        return Errors.TYPE_ERROR
+      }
+      if (!this.checkValidString(note[key])) {
+        this.logTypeError(key)
+        return Errors.TYPE_ERROR
+      }
+    }
+    return null
+  }
+  /**
+   * checks if the card fields are valid types and that they have the same length
+   * @param modelFields
+   * @param valueFields
+   */
+  private checkValidFields(modelFields: string[], valueFields: string[]) {
+    try {
+      if (
+        modelFields.length !== valueFields.length &&
+        Array.isArray(modelFields) &&
+        Array.isArray(valueFields)
+      ) {
+        console.warn(
+          MODULE_NAME,
+          ErrorText.ARGUMENT_TYPE,
+          ErrorText.ARRAY_SAME_LENGTH,
+        )
+        return false
+      }
+    } catch (error) {
+      console.warn(
+        MODULE_NAME,
+        ErrorText.ARGUMENT_TYPE,
+        ErrorText.ARRAY_SAME_LENGTH,
+        error.toString(),
+      )
+      return false
+    }
+    return true
+  }
+  /**
+   * checks that arrays are the correct length
+   * @param noteValue
+   * @param noteKey
+   */
+  private checkArrayLength(
+    noteValue: string | string[],
+    noteKey: string,
+  ): boolean {
+    try {
+      switch (noteKey) {
+        case NoteKeys.cardNames:
+          if (noteValue.length === 2 && Array.isArray(noteValue)) return true
+          break
+        case NoteKeys.questionFormat:
+          if (noteValue.length === 2 && Array.isArray(noteValue)) return true
+          break
+        case NoteKeys.answerFormat:
+          if (noteValue.length === 2 && Array.isArray(noteValue)) return true
+          break
+        default:
+          return true
+      }
+      console.warn(
+        MODULE_NAME,
+        ErrorText.ARGUMENT_TYPE,
+        `${noteKey} ${ErrorText.ARRAY_LENGTH_2}`,
+      )
+    } catch (error) {
+      console.warn(
+        MODULE_NAME,
+        ErrorText.ARGUMENT_TYPE,
+        `${noteKey} ${ErrorText.ARRAY_LENGTH_2}`,
+        error.toString(),
+      )
+      return false
+    }
+    return false
+  }
+  /**
+   * logs errors
+   * @param noteKey
+   */
+  private logTypeError(noteKey: string): void {
+    let errorText: ErrorText = null
+    switch (noteKey) {
+      case NoteKeys.deckName:
+        errorText = ErrorText.STRING
+        break
+      case NoteKeys.modelName:
+        errorText = ErrorText.STRING
+        break
+      case NoteKeys.dbDeckReference:
+        errorText = ErrorText.STRING
+        break
+      case NoteKeys.dbModelReference:
+        errorText = ErrorText.STRING
+        break
+      case NoteKeys.modelFields:
+        errorText = ErrorText.ARRAY_OF_STRING
+        break
+      case NoteKeys.valueFields:
+        errorText = ErrorText.ARRAY_OF_STRING
+        break
+      case NoteKeys.tags:
+        errorText = ErrorText.ARRAY_OF_STRING_OR_NULL
+        break
+      case NoteKeys.cardNames:
+        errorText = ErrorText.ARRAY_OF_STRING
+        break
+      case NoteKeys.questionFormat:
+        errorText = ErrorText.ARRAY_OF_STRING
+        break
+      case NoteKeys.answerFormat:
+        errorText = ErrorText.ARRAY_OF_STRING
+        break
+      case NoteKeys.css:
+        errorText = ErrorText.STRING_OR_NULL
+        break
+      default:
+        errorText = ErrorText.NOTE_UNKNOWN
+        break
+    }
+    console.warn(
+      MODULE_NAME,
+      ErrorText.ARGUMENT_TYPE,
+      `${noteKey} ${errorText}`,
+    )
+  }
+  /**
+   * Checks if a valid string or array of strings
+   * @param itemToCheck
+   * @returns `true` if valid
+   */
+  private checkValidString(itemToCheck: string | string[]): boolean {
+    if (Array.isArray(itemToCheck)) {
+      return itemToCheck.every(item => this.checkValidString(item))
+    } else {
+      return typeof itemToCheck === "string"
+    }
+  }
+  /**
+   * Create notes using the created deck model
+   * @param note length must match the settings used when creating the deck
+   * @param permissionRational optional `PermissionsAndroid` message to show when requesting permissions
+   * @return the added note ID
+   * @return error string if something goes wrong
+   */
+  async addNote(
+    valueFields: string[],
+    permissionRational: Rationale = null,
+  ): Promise<number | Errors> {
+    if (!androidCheck()) return Errors.OS_ERROR
+    const permissionStatus = await requestPermission(permissionRational)
+    if (permissionStatus !== "granted") return Errors.PERMISSION_ERROR
+    // destructure with default values
+    const {
       deckName,
       modelName,
       dbDeckReference,
       dbModelReference,
       modelFields,
-      valueFields,
-      tags,
       cardNames,
       questionFormat,
       answerFormat,
+      tags = null,
+      css = null,
+    } = this.modelSettings
+    const noteData: Note = { ...this.modelSettings, valueFields }
+    // check for errors with the default null values added
+    const errorCheckResults = this.checkForAddNoteErrors({
+      ...noteData,
+      tags,
       css,
-    )
-  } catch (error) {
-    console.warn(MODULE_NAME, error.toString())
-    return Errors.UNKNOWN_ERROR
-  }
-  try {
-    const addedNoteIdInt = Number(addedNoteId)
-
-    // check if we received
-    if (!addedNoteId || isNaN(addedNoteIdInt)) {
-      console.warn(MODULE_NAME, addedNoteId)
-      // return the appropriate error
-      return Errors[addedNoteId]
+    })
+    if (errorCheckResults) return errorCheckResults
+    let addedNoteId: string | Errors
+    try {
+      addedNoteId = await AnkiDroidModule.addNote(
+        deckName,
+        modelName,
+        dbDeckReference,
+        dbModelReference,
+        modelFields,
+        valueFields,
+        tags,
+        cardNames,
+        questionFormat,
+        answerFormat,
+        css,
+      )
+    } catch (error) {
+      console.warn(MODULE_NAME, error.toString())
+      return Errors.UNKNOWN_ERROR
     }
-    return addedNoteIdInt
-  } catch (error) {
-    console.warn(MODULE_NAME, error.toString())
-    return Errors.UNKNOWN_ERROR
+    try {
+      const addedNoteIdInt = Number(addedNoteId)
+      // check if we received
+      if (!addedNoteId || isNaN(addedNoteIdInt)) {
+        console.warn(MODULE_NAME, addedNoteId)
+        // return the appropriate error
+        return Errors[addedNoteId]
+      }
+      return addedNoteIdInt
+    } catch (error) {
+      console.warn(MODULE_NAME, error.toString())
+      return Errors.UNKNOWN_ERROR
+    }
   }
 }

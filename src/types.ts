@@ -41,25 +41,27 @@ export enum PermissionResults {
   NEVER_ASK_AGAIN = "never_ask_again",
 }
 /**
- * the data object for the addNote method
+ * the data object for setting up the deck
  */
-export interface NoteData {
+export interface ModelSettings {
   deckName: string
   modelName: string
   dbDeckReference: string
   dbModelReference: string
   modelFields: string[]
-  valueFields: string[]
   cardNames: string[]
   questionFormat: string[]
   answerFormat: string[]
   tags?: string[]
   css?: string
 }
+export interface Note extends ModelSettings {
+  valueFields: string[]
+}
 /**
  * for getting argument names
  */
-export enum NoteDataKeys {
+export enum NoteKeys {
   deckName = "deckName",
   modelName = "modelName",
   dbDeckReference = "dbDeckReference",

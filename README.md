@@ -12,7 +12,7 @@ React Native wrapper for the AnkiDroid API
 
 `react-native link react-native-ankidroid`
 
-- Step 4 of the manual installation must still be done for production.
+- Step 4 of the manual installation is still required.
 
 ### Manual installation
 
@@ -32,11 +32,11 @@ React Native wrapper for the AnkiDroid API
    ```
      compile project(':react-native-ankidroid')
    ```
-4. Add the following line to `/android/app/src/main/res/AndroidManifest.xml`:
+4. Add the following lines to `/android/app/src/main/res/AndroidManifest.xml`:
 
    ```java
    <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-       xmlns:tools="http://schemas.android.com/tools"
+       xmlns:tools="http://schemas.android.com/tools" // <---- ADD HERE
        package="com.yourpackage.name">
 
        <uses-permission android:name="android.permission.INTERNET" />
@@ -75,25 +75,32 @@ AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
 - **checkPermission()**
 - **requestPermission(rationale)**
   -- rationale (optional)
-- **addNote(noteData, permissionRationale)**
-  -- noteData (see below)
+- **Deck(deckModelSetup)** - creates an instance of your deck
+
+## deckModelSetup object
+
+| Params           |   Type   | Default  | Description                                                                                                               |
+| ---------------- | :------: | -------- | ------------------------------------------------------------------------------------------------------------------------- |
+| dbDeckReference  |  string  | REQUIRED | Deck reference name to store locally in SharedPreferences                                                                 |
+| dbModelReference |  string  | REQUIRED | Model reference name to store locally in SharedPreferences                                                                |
+| modelFields      | string[] | REQUIRED | The names of the fields used for the note's model during creation / use _(modelFields.length === valueFields.length)_     |
+| cardNames        | string[] | REQUIRED | Names for the front/back sides of the model _(cardNames.length === 2)_                                                    |
+| questionFormat   | string[] | REQUIRED | Question formatting for each direction of _(questionFormat.length === 2)_ **variable names MUST match modelFields names** |
+| answerFormat     | string[] | REQUIRED | Answer formatting for each direction of _(answerFormat.length === 2)_ **variable names MUST match modelFields names**     |
+| modelName        |  string  | REQUIRED | Name of the model used / created for notes                                                                                |
+| deckName         |  string  | REQUIRED | Name of the deck to create / add notes to                                                                                 |
+| tags             | string[] | null     | Tags to attach to added notes                                                                                             |
+| css              |  string  | null     | css styling information to be shared across all cards. _(null for default CSS)_                                           |
+
+## The Deck Class / the instance of your deck
+
+- **addNote(valueFields, permissionRationale)**
+  -- valueFields (see below)
   -- permissionRationale (optional)
 
-## noteData object
-
-| Params           |   Type   | Required | Default | Description                                                                                                               |
-| ---------------- | :------: | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
-| dbDeckReference  |  string  | true     | --      | Deck reference name to store locally in SharedPreferences                                                                 |
-| dbModelReference |  string  | true     | --      | Model reference name to store locally in SharedPreferences                                                                |
-| modelFields      | string[] | true     | --      | The names of the fields used for the note's model during creation / use _(modelFields.length === valueFields.length)_     |
-| valueFields      | string[] | true     | --      | The values for the corresponding model fields. _(valueFields.length === modelFields.length)_                              |
-| cardNames        | string[] | true     | --      | Names for the front/back sides of the model _(cardNames.length === 2)_                                                    |
-| questionFormat   | string[] | true     | --      | Question formatting for each direction of _(questionFormat.length === 2)_ **variable names MUST match modelFields names** |
-| answerFormat     | string[] | true     | --      | Answer formatting for each direction of _(answerFormat.length === 2)_ **variable names MUST match modelFields names**     |
-| modelName        |  string  | true     | --      | Name of the model used / created for notes                                                                                |
-| deckName         |  string  | true     | --      | Name of the deck to create / add notes to                                                                                 |
-| tags             | string[] | false    | null    | Tags to attach to added notes                                                                                             |
-| css              |  string  | false    | null    | css styling information to be shared across all cards. _(null for default CSS)_                                           |
+  | Param       |   Type   | Description                                                                                  |
+  | ----------- | :------: | -------------------------------------------------------------------------------------------- |
+  | valueFields | string[] | The values for the corresponding model fields. \_(valueFields.length === modelFields.length) |
 
 ## Gotchas
 
@@ -182,23 +189,22 @@ const valueFields = [
   "For lovers to have a conversation of love."
 ];
 
-AnkiDroid.addNote({ ...deckModelSetup, valueFields });
+const myAnkiDeck = new AnkiDroid.Deck(deckModelSetup);
+
+myAnkiDeck.addNote(valueFields);
 // returns a promise that returns the added note ID
 
-const noteData = {
-  ...deckModelSetup,
-  valueFields: [
-    "여행사",
-    "travel agency",
-    "A company that offers an array of services for travel, including transportation, accomodaton, tour guide, etc.",
-    "noun",
-    "",
-    "",
-    ""
-  ]
-};
+const newNote = [
+  "여행사",
+  "travel agency",
+  "A company that offers an array of services for travel, including transportation, accomodaton, tour guide, etc.",
+  "noun",
+  "",
+  "",
+  ""
+];
 
-AnkiDroid.addNote(noteData);
+myAnkiDeck.addNote(newNote);
 ```
 
 ## Card setup / References

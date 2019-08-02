@@ -1,11 +1,11 @@
-import { NativeModules, Platform } from "react-native"
 import {
-  Errors,
-  ErrorText,
-  MODULE_NAME,
-  NoteData,
-  NoteDataKeys,
-} from "./types"
+  NativeModules,
+  Permission,
+  PermissionsAndroid,
+  Platform,
+  Rationale,
+} from "react-native"
+import { Errors, ErrorText, MODULE_NAME, PermissionResults } from "./types"
 
 const { AnkiDroidModule } = NativeModules
 
@@ -24,7 +24,7 @@ export function androidCheck(): boolean {
 /**
  * Get the AnkiDroid API permission name
  */
-export async function getPermissionName(): Promise<any>{
+export async function getPermissionName(): Promise<any> {
   let permissionName
   try {
     permissionName = await AnkiDroidModule.getPermissionName()
@@ -34,166 +34,73 @@ export async function getPermissionName(): Promise<any>{
   }
   return permissionName
 }
+
 /**
- * check all noteData values for errors
- * @param noteData
- * @returns `null` if no errors
+ * Check if the AnkiDroid API is available on the phone
+ * @return `true` if the API is available to use
  */
-export function checkForAddNoteErrors(noteData: NoteData): Errors{
-  const { modelFields, valueFields } = noteData
-  if (!checkValidFields(modelFields, valueFields)) return Errors.TYPE_ERROR
-  for (var key in noteData) {
-    // skip loop if the property is from prototype
-    if (!noteData.hasOwnProperty(key)) continue
-    // check for null exceptions
-    if (
-      noteData[key] === null &&
-      (key === NoteDataKeys.tags || key === NoteDataKeys.css)
-    ) {
-      continue
-    }
-    if (!checkArrayLength(noteData[key], key)) {
-      return Errors.TYPE_ERROR
-    }
-    if (!checkValidString(noteData[key])) {
-      logTypeError(key)
-      return Errors.TYPE_ERROR
-    }
-  }
-  return null
-}
-/**
- * checks if the card fields are valid types and that they have the same length
- * @param modelFields
- * @param valueFields
- */
-function checkValidFields(modelFields: string[], valueFields: string[]){
+export async function isApiAvailable(): Promise<boolean> {
+  if (!androidCheck()) return false
+  let apiAvailable: boolean
   try {
-    if (
-      modelFields.length !== valueFields.length &&
-      Array.isArray(modelFields) &&
-      Array.isArray(valueFields)
-    ) {
-      console.warn(
-        MODULE_NAME,
-        ErrorText.ARGUMENT_TYPE,
-        ErrorText.ARRAY_SAME_LENGTH,
-      )
-      return false
-    }
+    apiAvailable = await AnkiDroidModule.isApiAvailable()
   } catch (error) {
-    console.warn(
-      MODULE_NAME,
-      ErrorText.ARGUMENT_TYPE,
-      ErrorText.ARRAY_SAME_LENGTH,
-      error.toString(),
-    )
-    return false
+    apiAvailable = false
+    console.warn(MODULE_NAME, ErrorText.API, error)
   }
-  return true
-}
-/**
- * checks that arrays are the correct length
- * @param noteDataValue
- * @param noteDataKey
- */
-function checkArrayLength(
-  noteDataValue: string | string[],
-  noteDataKey: string,
-): boolean{
-  try {
-    switch (noteDataKey) {
-      case NoteDataKeys.cardNames:
-        if (noteDataValue.length === 2 && Array.isArray(noteDataValue))
-          return true
-        break
-      case NoteDataKeys.questionFormat:
-        if (noteDataValue.length === 2 && Array.isArray(noteDataValue))
-          return true
-        break
-      case NoteDataKeys.answerFormat:
-        if (noteDataValue.length === 2 && Array.isArray(noteDataValue))
-          return true
-        break
-      default:
-        return true
-    }
-    console.warn(
-      MODULE_NAME,
-      ErrorText.ARGUMENT_TYPE,
-      `${noteDataKey} ${ErrorText.ARRAY_LENGTH_2}`,
-    )
-  } catch (error) {
-    console.warn(
-      MODULE_NAME,
-      ErrorText.ARGUMENT_TYPE,
-      `${noteDataKey} ${ErrorText.ARRAY_LENGTH_2}`,
-      error.toString(),
-    )
-    return false
-  }
-  return false
-}
-/**
- * logs errors
- * @param noteDataKey
- */
-function logTypeError(noteDataKey: string): void{
-  let errorText: ErrorText = null
-  switch (noteDataKey) {
-    case NoteDataKeys.deckName:
-      errorText = ErrorText.STRING
-      break
-    case NoteDataKeys.modelName:
-      errorText = ErrorText.STRING
-      break
-    case NoteDataKeys.dbDeckReference:
-      errorText = ErrorText.STRING
-      break
-    case NoteDataKeys.dbModelReference:
-      errorText = ErrorText.STRING
-      break
-    case NoteDataKeys.modelFields:
-      errorText = ErrorText.ARRAY_OF_STRING
-      break
-    case NoteDataKeys.valueFields:
-      errorText = ErrorText.ARRAY_OF_STRING
-      break
-    case NoteDataKeys.tags:
-      errorText = ErrorText.ARRAY_OF_STRING_OR_NULL
-      break
-    case NoteDataKeys.cardNames:
-      errorText = ErrorText.ARRAY_OF_STRING
-      break
-    case NoteDataKeys.questionFormat:
-      errorText = ErrorText.ARRAY_OF_STRING
-      break
-    case NoteDataKeys.answerFormat:
-      errorText = ErrorText.ARRAY_OF_STRING
-      break
-    case NoteDataKeys.css:
-      errorText = ErrorText.STRING_OR_NULL
-      break
-    default:
-      errorText = ErrorText.NOTE_UNKNOWN
-      break
-  }
-  console.warn(
-    MODULE_NAME,
-    ErrorText.ARGUMENT_TYPE,
-    `${noteDataKey} ${errorText}`,
-  )
+  return apiAvailable
 }
 
 /**
- * Checks if a valid string or array of strings
- * @param itemToCheck
- * @returns `true` if valid
+ * Check the permission status
+ * @return `true` if permission have been granted
  */
-export function checkValidString(itemToCheck: string | string[]): boolean{
-  if (Array.isArray(itemToCheck)) {
-    return itemToCheck.every(item => checkValidString(item))
-  } else {
-    return typeof itemToCheck === "string"
+export async function checkPermission(): Promise<boolean> {
+  if (!androidCheck()) return false
+  let permissionName: Permission
+  try {
+    permissionName = await getPermissionName()
+  } catch (error) {
+    console.warn(MODULE_NAME, error.toString())
+    return null
   }
+  if (!permissionName) return false
+  let permission: boolean
+  try {
+    permission = await PermissionsAndroid.check(permissionName)
+  } catch (error) {
+    permission = error
+    console.warn(MODULE_NAME, ErrorText.PERMISSIONS_CHECK, error)
+  }
+  return permission
+}
+
+/**
+ * Request AnkiDroid API permissions
+ * @param rationale optional `PermissionsAndroid` message to show when requesting permissions
+ * @param returns optional `PermissionsAndroid` message to show when requesting permissions
+ */
+export async function requestPermission(
+  rationale: Rationale = null,
+): Promise<PermissionResults | string> {
+  if (!androidCheck()) return PermissionResults.DENIED
+  let permissionName: Permission
+  try {
+    permissionName = await getPermissionName()
+  } catch (error) {
+    console.warn(MODULE_NAME, error.toString())
+    return null
+  }
+  if (!permissionName) return PermissionResults.DENIED
+  let permissionRequest: PermissionResults | string
+  try {
+    permissionRequest = await PermissionsAndroid.request(
+      permissionName,
+      rationale,
+    )
+  } catch (error) {
+    permissionRequest = error.toString()
+    console.warn(MODULE_NAME, ErrorText.PERMISSIONS_REQUEST, error)
+  }
+  return permissionRequest
 }

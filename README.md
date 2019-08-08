@@ -8,6 +8,12 @@ React Native wrapper for the AnkiDroid API
 
 `npm install react-native-ankidroid --save`
 
+## **RN 0.60+**
+
+The library will be automatically linked **BUT step 4 of the manual installation is still required.**
+
+## RN < 0.60
+
 ### Mostly automatic installation
 
 `react-native link react-native-ankidroid`
@@ -30,9 +36,9 @@ React Native wrapper for the AnkiDroid API
    ```
 3. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
    ```
-     compile project(':react-native-ankidroid')
+     implementation project(':react-native-ankidroid')
    ```
-4. Add the following lines to `/android/app/src/main/res/AndroidManifest.xml`:
+4. **Add the following lines to `/android/app/src/main/res/AndroidManifest.xml`:**
 
    ```java
    <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -52,12 +58,14 @@ React Native wrapper for the AnkiDroid API
          >
    ```
 
-This will prevent the following error by forcing the compiler to use your app's attribute:
+- This will prevent the following error by forcing the compiler to use your app's attribute:
 
+```
     Execution failed for task ':app:processDebugManifest'.
     > Manifest merger failed : Attribute application@allowBackup value=(false) from AndroidManifest.xml:15:7-34 is also present at [com.ichi2.anki:api:1.1.0alpha6] AndroidManife
     st.xml:14:9-35 value=(true).
     Suggestion: add 'tools:replace="android:allowBackup"' to <application> element at AndroidManifest.xml:7:5-117 to override.
+```
 
 ## Usage
 
@@ -68,7 +76,7 @@ await AnkiDroid.isApiAvailable();
 ```
 
 AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
-**(All methods return Promises)**
+**(The first 3 methods return Promises)**
 
 - **isApiAvailable()** - checks if the AnkiDroid API is avaiable (AnkiDroid is installed on the device)
   _in order to access the API, AnkiDroid may need to be installed before the react native app_

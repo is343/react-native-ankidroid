@@ -35,6 +35,9 @@
     "url": "git+https://github.com/is343/react-native-ankidroid.git"
   },
   "homepage": "https://github.com/is343/react-native-ankidroid/",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@is343"
+  },
   "license": "MIT",
   "peerDependencies": {
     "react-native": "^0.41.2"

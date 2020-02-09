@@ -10,7 +10,7 @@ React Native wrapper for the AnkiDroid API
 
 ## **RN 0.60+**
 
-The library will be automatically linked **BUT step 3 of the manual installation is still required.**
+The library will be automatically linked **BUT step 4 of the manual installation is still required.**
 
 ## RN < 0.60
 
@@ -18,7 +18,7 @@ The library will be automatically linked **BUT step 3 of the manual installation
 
 `react-native link react-native-ankidroid`
 
-- Step 3 of the manual installation is still required.
+- Step 4 of the manual installation is still required.
 
 ### Manual installation
 

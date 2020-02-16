@@ -64,7 +64,7 @@ const answerFormat = [answerFmt1, answerFmt1];
 // ADDING NOTES //
 //////////////////
 
-const deckModelSetup = {
+const deckProperties = {
   name: deckName,
   reference: dbDeckReference,
 };
@@ -93,7 +93,7 @@ const settings = {
   modelId: undefined,
   modelProperties: modelProperties,
   deckId: undefined,
-  deckProperties: deckModelSetup
+  deckProperties: deckProperties
 }
 
 const myAnkiDeck = new AnkiDroid(settings);

@@ -375,12 +375,10 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
       WritableArray fieldArray = new WritableNativeArray();
       // use the model ID if supplied
       Long mid = modelId != null ? Long.parseLong(modelId) : _getModelId(modelName, 0);
-      if(mid == null) {
-        String[] fieldList = getApi().getFieldList(mid);
-        if (fieldList != null) {
-          for (int index = 0; index < fieldList.length; index++) {
-            fieldArray.pushString(fieldList[index]);
-          }
+      String[] fieldList = getApi().getFieldList(mid);
+      if (fieldList != null) {
+        for (int index = 0; index < fieldList.length; index++) {
+          fieldArray.pushString(fieldList[index]);
         }
       }
       promise.resolve(fieldArray);
@@ -431,7 +429,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
       }
 
       // use the model ID if supplied
-      Long mid = modelId != null ? Long.parseLong(modelId) : getModelIdOrCreateIfNew(dbModelReference, modelName, modelFields, deckId, cardNames, questionFormat,
+      Long mid = modelId != null ? Long.parseLong(modelId) : getModelIdOrCreateIfNew(dbModelReference, modelName, modelFields, did, cardNames, questionFormat,
       answerFormat, css);
 
       if (mid == null) {
@@ -439,7 +437,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
         return;
       }
 
-      Long addedNoteId = getApi().addNote(modelId, deckId, valueFields, tags);
+      Long addedNoteId = getApi().addNote(mid, did, valueFields, tags);
 
       if (addedNoteId == null) {
         promise.resolve(FAILED_TO_ADD_NOTE);

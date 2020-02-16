@@ -540,7 +540,7 @@ export class AnkiDroid {
         // return the appropriate error
         return [new Error(Errors[addedNoteId])];
       }
-      return [null, addedNoteIdInt];
+      return [null, addedNoteId];
     } catch (error) {
       console.warn(MODULE_NAME, error.toString());
       return [new Error(Errors.UNKNOWN_ERROR)];

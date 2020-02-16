@@ -1,4 +1,4 @@
-import { NativeModules, Rationale } from 'react-native';
+import { NativeModules } from 'react-native';
 import {
   Errors,
   ErrorText,
@@ -8,7 +8,7 @@ import {
   NoteKeys,
   Result,
 } from './types';
-import { androidCheck, requestPermission } from './utilities';
+import { androidCheck, checkPermission } from './utilities';
 
 const { AnkiDroidModule } = NativeModules;
 
@@ -195,18 +195,13 @@ export class Deck {
   /**
    * Create notes using the created deck model
    * @param note length must match the settings used when creating the deck
-   * @param permissionRational optional `PermissionsAndroid` message to show when requesting permissions
    * @return  a tuple of any errors and the result `[error, result]`
    * @return the added note ID
    */
-  async addNote(
-    valueFields: string[],
-    permissionRational: Rationale = null,
-  ): Promise<Result<number>> {
+  async addNote(valueFields: string[]): Promise<Result<number>> {
     if (!androidCheck()) return [new Error(Errors.OS_ERROR)];
-    const permissionStatus = await requestPermission(permissionRational);
-    if (permissionStatus[1] !== 'granted')
-      return [new Error(Errors.PERMISSION_ERROR)];
+    const permissionStatus = await checkPermission();
+    if (!permissionStatus) return [new Error(Errors.PERMISSION_ERROR)];
     // destructure with default values
     const {
       deckName,

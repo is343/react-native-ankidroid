@@ -141,6 +141,8 @@ const App = () => {
     const [error, fieldList] = await AnkiDroid.getFieldList(modelName, modelId);
     if (fieldList) {
       setFields(fieldList)
+    } else {
+      setFields([])
     }
   }
 
@@ -169,16 +171,14 @@ const App = () => {
   React.useEffect(() => {
     getApiStatus();
     getPermissionStatus();
-    getDeckList();
-    getModelList();
-    getSelectedDeckName();
-    getFieldList();
   }, []);
 
   React.useEffect(() => {
     if (hasPermission) {
       getDeckList();
       getModelList();
+      getSelectedDeckName();
+      getFieldList();
     }
   }, [hasPermission]);
 

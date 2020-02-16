@@ -18,7 +18,13 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableNativeArray;
+import com.facebook.react.bridge.WritableNativeMap;
+import com.facebook.react.bridge.Arguments;
 
 import com.ichi2.anki.api.AddContentApi;
 import com.ichi2.anki.api.NoteInfo;
@@ -286,6 +292,30 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
       }
     }
     return null;
+  }
+
+  /**
+   * Gets all deck names and IDs
+   * @return an array of all deck names and IDs, or null if no decks were found
+   *         or API error
+   */
+  @ReactMethod
+  public void getDeckList(Promise promise) {
+    try {
+      Map<Long, String> deckList = mApi.getDeckList();
+      WritableArray deckArray = new WritableNativeArray();
+      if (deckList != null) {
+        for (Map.Entry<Long, String> entry : deckList.entrySet()) {
+        WritableMap deckMap = new WritableNativeMap();
+        deckMap.putString("id", entry.getKey().toString());
+        deckMap.putString("name", entry.getValue());
+        deckArray.pushMap(deckMap);
+        }
+      }
+      promise.resolve(deckArray);
+    } catch (Exception e) {
+      promise.reject(e.toString());
+    }
   }
 
   /**

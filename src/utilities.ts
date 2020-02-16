@@ -4,10 +4,17 @@ import {
   PermissionsAndroid,
   Platform,
   Rationale,
-} from "react-native"
-import { Errors, ErrorText, MODULE_NAME, PermissionResults } from "./types"
+} from 'react-native';
+import {
+  DeckInfo,
+  Errors,
+  ErrorText,
+  MODULE_NAME,
+  PermissionResults,
+  Result,
+} from './types';
 
-const { AnkiDroidModule } = NativeModules
+const { AnkiDroidModule } = NativeModules;
 
 /**
  * Check if android
@@ -15,24 +22,24 @@ const { AnkiDroidModule } = NativeModules
  * @returns `true` if android
  */
 export function androidCheck(): boolean {
-  if (Platform.OS === "android") {
-    return true
+  if (Platform.OS === 'android') {
+    return true;
   }
-  console.warn(MODULE_NAME, Errors.OS_ERROR)
-  return false
+  console.warn(MODULE_NAME, Errors.OS_ERROR);
+  return false;
 }
 /**
  * Get the AnkiDroid API permission name
  */
 export async function getPermissionName(): Promise<any> {
-  let permissionName
+  let permissionName;
   try {
-    permissionName = await AnkiDroidModule.getPermissionName()
+    permissionName = await AnkiDroidModule.getPermissionName();
   } catch (error) {
-    permissionName = null
-    console.warn(MODULE_NAME, ErrorText.PERMISSION_NAME, error)
+    permissionName = null;
+    console.warn(MODULE_NAME, ErrorText.PERMISSION_NAME, error);
   }
-  return permissionName
+  return permissionName;
 }
 
 /**
@@ -40,15 +47,15 @@ export async function getPermissionName(): Promise<any> {
  * @return `true` if the API is available to use
  */
 export async function isApiAvailable(): Promise<boolean> {
-  if (!androidCheck()) return false
-  let apiAvailable: boolean
+  if (!androidCheck()) return false;
+  let apiAvailable: boolean;
   try {
-    apiAvailable = await AnkiDroidModule.isApiAvailable()
+    apiAvailable = await AnkiDroidModule.isApiAvailable();
   } catch (error) {
-    apiAvailable = false
-    console.warn(MODULE_NAME, ErrorText.API, error)
+    apiAvailable = false;
+    console.warn(MODULE_NAME, ErrorText.API, error);
   }
-  return apiAvailable
+  return apiAvailable;
 }
 
 /**
@@ -56,23 +63,22 @@ export async function isApiAvailable(): Promise<boolean> {
  * @return `true` if permission have been granted
  */
 export async function checkPermission(): Promise<boolean> {
-  if (!androidCheck()) return false
-  let permissionName: Permission
+  if (!androidCheck()) return false;
+  let permissionName: Permission;
   try {
-    permissionName = await getPermissionName()
+    permissionName = await getPermissionName();
   } catch (error) {
-    console.warn(MODULE_NAME, error.toString())
-    return null
+    console.warn(MODULE_NAME, error.toString());
+    return false;
   }
-  if (!permissionName) return false
-  let permission: boolean
+  if (!permissionName) return false;
   try {
-    permission = await PermissionsAndroid.check(permissionName)
+    const permission = await PermissionsAndroid.check(permissionName);
+    return permission;
   } catch (error) {
-    permission = error
-    console.warn(MODULE_NAME, ErrorText.PERMISSIONS_CHECK, error)
+    console.warn(MODULE_NAME, ErrorText.PERMISSIONS_CHECK, error);
+    return false;
   }
-  return permission
 }
 
 /**
@@ -81,26 +87,46 @@ export async function checkPermission(): Promise<boolean> {
  * @param returns optional `PermissionsAndroid` message to show when requesting permissions
  */
 export async function requestPermission(
-  rationale: Rationale = null,
-): Promise<PermissionResults | string> {
-  if (!androidCheck()) return PermissionResults.DENIED
-  let permissionName: Permission
+  rationale: Rationale = null
+): Promise<Result<PermissionResults>> {
+  if (!androidCheck()) return [new Error(Errors.OS_ERROR)];
+  let permissionName: Permission;
   try {
-    permissionName = await getPermissionName()
+    permissionName = await getPermissionName();
   } catch (error) {
-    console.warn(MODULE_NAME, error.toString())
-    return null
+    console.warn(MODULE_NAME, error.toString());
+    return [new Error(Errors.UNKNOWN_ERROR)];
   }
-  if (!permissionName) return PermissionResults.DENIED
-  let permissionRequest: PermissionResults | string
+  if (!permissionName) return [null, PermissionResults.DENIED];
   try {
-    permissionRequest = await PermissionsAndroid.request(
+    const permissionRequest = (await PermissionsAndroid.request(
       permissionName,
-      rationale,
-    )
+      rationale
+    )) as PermissionResults;
+    return [null, permissionRequest];
   } catch (error) {
-    permissionRequest = error.toString()
-    console.warn(MODULE_NAME, ErrorText.PERMISSIONS_REQUEST, error)
+    console.warn(MODULE_NAME, ErrorText.PERMISSIONS_REQUEST, error);
+    return [new Error(error.toString())];
   }
-  return permissionRequest
+}
+
+/**
+ * Request AnkiDroid API permissions
+ * @param rationale optional `PermissionsAndroid` message to show when requesting permissions
+ * @param returns optional `PermissionsAndroid` message to show when requesting permissions
+ */
+export async function getDeckList(
+  rationale: Rationale = null
+): Promise<Result<DeckInfo[]>> {
+  if (!androidCheck()) return [new Error(Errors.OS_ERROR)];
+  const permissionStatus = await requestPermission(rationale);
+  if (permissionStatus[1] !== PermissionResults.GRANTED)
+    return [new Error(Errors.PERMISSION_ERROR)];
+  try {
+    const decks: DeckInfo[] = await AnkiDroidModule.getDeckList();
+    return [null, decks];
+  } catch (error) {
+    console.warn(MODULE_NAME, error.toString());
+    return [new Error(Errors.UNKNOWN_ERROR)];
+  }
 }

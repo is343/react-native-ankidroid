@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { Button, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { Button, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
 import AnkiDroid from 'react-native-ankidroid';
 import { Colors, Header } from 'react-native/Libraries/NewAppScreen';
 
@@ -110,9 +110,11 @@ const App = () => {
   const [hasPermission, setHasPermission] = React.useState(false);
   const [decks, setDecks] = React.useState([]);
   const [models, setModels] = React.useState([]);
+  const [fields, setFields] = React.useState([]);
   const [showDecks, setShowDecks] = React.useState(false);
   const [showModels, setShowModels] = React.useState(false);
   const [deckName, setDeckName] = React.useState('');
+  const [modelIdentifier, setModelIdentifier] = React.useState('');
 
   const getDeckList = async () => {
     const [error, deckList] = await AnkiDroid.getDeckList();
@@ -123,10 +125,22 @@ const App = () => {
 
   const getModelList = async () => {
     const [error, modelList] = await AnkiDroid.getModelList();
-    console.warn('modelList', modelList);
-    console.warn('error', error);
     if (modelList) {
       setModels(modelList)
+    }
+  }
+
+  const getFieldList = async (identifier) => {
+    let modelName = null;
+    let modelId = null;
+    if (isNaN(Number(identifier))) {
+      modelName = identifier;
+    } else {
+      modelId = identifier;
+    }
+    const [error, fieldList] = await AnkiDroid.getFieldList(modelName, modelId);
+    if (fieldList) {
+      setFields(fieldList)
     }
   }
 
@@ -156,12 +170,15 @@ const App = () => {
     getApiStatus();
     getPermissionStatus();
     getDeckList();
+    getModelList();
     getSelectedDeckName();
+    getFieldList();
   }, []);
 
   React.useEffect(() => {
     if (hasPermission) {
       getDeckList();
+      getModelList();
     }
   }, [hasPermission]);
 
@@ -181,10 +198,14 @@ const App = () => {
 
   const renderList = (list) => list.map((item, index) => {
     return (<View key={index}>
-      <Text style={styles.sectionDescription}>{`Name: ${item.name}`}</Text>
-      <Text style={styles.sectionDescription}>{`ID: ${item.id}`}</Text>
+      <Text selectable style={styles.sectionDescription}>{`Name: ${item.name}`}</Text>
+      <Text selectable style={styles.sectionDescription}>{`ID: ${item.id}`}</Text>
     </View>)
   });
+
+  const renderFieldList = (fields) => fields.map((field, index) => {
+    return <Text key={index} style={styles.sectionDescription}>{field}</Text>
+  })
 
   return (
     <>
@@ -208,7 +229,7 @@ const App = () => {
                 title="Request Permission"
               />
               <Text style={styles.sectionTitle}>{`Selected deck name:`}</Text>
-              <Text style={styles.sectionDescription}>{deckName}</Text>
+              <Text selectable style={styles.sectionDescription}>{deckName}</Text>
             </View>
             <View style={styles.sectionContainer}>
               <Text style={styles.sectionTitle}>{`Existing decks:`}</Text>
@@ -225,6 +246,19 @@ const App = () => {
                 title={`${showModels ? 'Hide' : 'Show'} Model List`}
               />
               {showModels && renderList(models)}
+            </View>
+            <View style={styles.sectionContainer}>
+              <Text style={styles.sectionTitle}>{`Get model fields by model name or ID`}</Text>
+              <TextInput
+                style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+                onChangeText={text => setModelIdentifier(text)}
+                value={modelIdentifier}
+              />
+              <Button
+                onPress={() => getFieldList(modelIdentifier)}
+                title={'search'}
+              />
+              {!!fields && renderFieldList(fields)}
             </View>
           </View>
         </ScrollView>

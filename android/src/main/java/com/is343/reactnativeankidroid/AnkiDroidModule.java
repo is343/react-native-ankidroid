@@ -241,8 +241,8 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
     long prefsModelId = modelsDb.getLong(modelName, -1L);
     // if we have a reference saved to modelName and it exists and has at least
     // numFields then return it
-    if ((prefsModelId != -1L) && (mApi.getModelName(prefsModelId) != null) && (mApi.getFieldList(prefsModelId) != null)
-        && (mApi.getFieldList(prefsModelId).length >= numFields)) { // could potentially have been renamed
+    if ((prefsModelId != -1L) && (getApi().getModelName(prefsModelId) != null) && (getApi().getFieldList(prefsModelId) != null)
+        && (getApi().getFieldList(prefsModelId).length >= numFields)) { // could potentially have been renamed
       return prefsModelId;
     }
     Long mid = _getModelId(modelName, numFields);
@@ -271,7 +271,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
       // Otherwise try to check if we have a reference to a deck that was renamed and
       // return that
       did = decksDb.getLong(deckName, -1);
-      if (did != -1 && mApi.getDeckName(did) != null) {
+      if (did != -1 && getApi().getDeckName(did) != null) {
         return did;
       } else {
         // If the deck really doesn't exist then return null
@@ -287,7 +287,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
    *         or API error
    */
   private Long _getDeckId(String deckName) {
-    Map<Long, String> deckList = mApi.getDeckList();
+    Map<Long, String> deckList = getApi().getDeckList();
     if (deckList != null) {
       for (Map.Entry<Long, String> entry : deckList.entrySet()) {
         if (entry.getValue().equalsIgnoreCase(deckName)) {
@@ -305,7 +305,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
    *         or API error
    */
   private Long _getModelId(String modelName, int numFields) {
-    Map<Long, String> modelList = mApi.getModelList(numFields);
+    Map<Long, String> modelList = getApi().getModelList(numFields);
     if (modelList != null) {
       for (Map.Entry<Long, String> entry : modelList.entrySet()) {
         if (entry.getValue().equals(modelName)) {
@@ -326,7 +326,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void getDeckList(Promise promise) {
     try {
-      Map<Long, String> deckList = mApi.getDeckList();
+      Map<Long, String> deckList = getApi().getDeckList();
       WritableArray deckArray = new WritableNativeArray();
       if (deckList != null) {
         for (Map.Entry<Long, String> entry : deckList.entrySet()) {
@@ -344,13 +344,12 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
 
   /**
    * Gets all model names and IDs
-   * @return an array of all model names and IDs, or null if no models were found
-   *         or API error
+   * @return an array of all model names and IDs, or API error
    */
   @ReactMethod
   public void getModelList(Promise promise) {
     try {
-      Map<Long, String> modelList = mApi.getModelList(0);
+      Map<Long, String> modelList = getApi().getModelList(0); // search for the minimum number of fields required
       WritableArray modelArray = new WritableNativeArray();
       if (modelList != null) {
         for (Map.Entry<Long, String> entry : modelList.entrySet()) {
@@ -361,6 +360,27 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
         }
       }
       promise.resolve(modelArray);
+    } catch (Exception e) {
+      promise.reject(e.toString());
+    }
+  }
+
+  /**
+   * Gets all field names for a specific model
+   * @return an array of all fields, or API error
+   */
+  @ReactMethod
+  public void getFieldList(String modelName, String modelId, Promise promise) {
+    try {
+      // use the model ID if supplied
+      String[] fieldList = modelId != null ? getApi().getFieldList(Long.parseLong(modelId)) : getApi().getFieldList(_getModelId(modelName, 0));
+      WritableArray fieldArray = new WritableNativeArray();
+      if (fieldList != null) {
+        for (int index = 0; index < fieldList.length; index++) {
+          fieldArray.pushString(fieldList[index]);
+        }
+      }
+      promise.resolve(fieldArray);
     } catch (Exception e) {
       promise.reject(e.toString());
     }

@@ -30,6 +30,7 @@ export enum Errors {
   FAILED_TO_CREATE_DECK = 'FAILED_TO_CREATE_DECK',
   FAILED_TO_CREATE_MODEL = 'FAILED_TO_CREATE_MODEL',
   FAILED_TO_ADD_NOTE = 'FAILED_TO_ADD_NOTE',
+  IDENTIFIER_MISSING = 'IDENTIFIER_MISSING',
 }
 
 /** Result tuple for anything that may return an error */
@@ -74,9 +75,9 @@ export enum NoteKeys {
 }
 
 /**
- * Existing deck ID and deck name
+ * Existing ID and name
  */
-export interface DeckInfo {
+export interface Indentifier {
   id: string;
   name: string;
 }

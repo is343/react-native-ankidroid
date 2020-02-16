@@ -6,7 +6,7 @@ import {
   Platform,
   Rationale,
 } from 'react-native';
-import { DeckInfo, Errors, ErrorText, MODULE_NAME, Result } from './types';
+import { Errors, ErrorText, Indentifier, MODULE_NAME, Result } from './types';
 
 const { AnkiDroidModule } = NativeModules;
 
@@ -111,38 +111,70 @@ export async function requestPermission(
  */
 export async function getDeckList(
   rationale: Rationale = null,
-): Promise<Result<DeckInfo[]>> {
+): Promise<Result<Indentifier[]>> {
   if (!androidCheck()) return [new Error(Errors.OS_ERROR)];
   const permissionStatus = await requestPermission(rationale);
   if (permissionStatus[1] !== 'granted')
     return [new Error(Errors.PERMISSION_ERROR)];
   try {
-    const decks: DeckInfo[] = await AnkiDroidModule.getDeckList();
+    const decks: Indentifier[] = await AnkiDroidModule.getDeckList();
     return [null, decks];
   } catch (error) {
     console.warn(MODULE_NAME, error.toString());
-    return [new Error(Errors.UNKNOWN_ERROR)];
+    return [new Error(Errors.UNKNOWN_ERROR), []];
   }
 }
 
 /**
- * Gets the ID and name for all modelss
+ * Gets the ID and name for all models
  * @param rationale optional `PermissionsAndroid` message to show when requesting permissions
  * @return  a tuple of any errors and the result `[error, result]`
  */
 export async function getModelList(
   rationale: Rationale = null,
-): Promise<Result<DeckInfo[]>> {
+): Promise<Result<Indentifier[]>> {
   if (!androidCheck()) return [new Error(Errors.OS_ERROR)];
   const permissionStatus = await requestPermission(rationale);
   if (permissionStatus[1] !== 'granted')
     return [new Error(Errors.PERMISSION_ERROR)];
   try {
-    const modelss: DeckInfo[] = await AnkiDroidModule.getModelList();
-    return [null, modelss];
+    const models: Indentifier[] = await AnkiDroidModule.getModelList();
+    return [null, models];
   } catch (error) {
     console.warn(MODULE_NAME, error.toString());
-    return [new Error(Errors.UNKNOWN_ERROR)];
+    return [new Error(Errors.UNKNOWN_ERROR), []];
+  }
+}
+
+/**
+ * Gets all field names for a specific model
+ * @param modelName required if `modelId` is not used
+ * @param modelId required if `modelName` is not used
+ * @param rationale optional `PermissionsAndroid` message to show when requesting permissions
+ * @return  a tuple of any errors and the result `[error, result]`
+ */
+export async function getFieldList(
+  modelName?: string,
+  modelId?: number | string,
+  rationale: Rationale = null,
+): Promise<Result<string[]>> {
+  if (!androidCheck()) return [new Error(Errors.OS_ERROR)];
+  const permissionStatus = await requestPermission(rationale);
+  if (permissionStatus[1] !== 'granted')
+    return [new Error(Errors.PERMISSION_ERROR)];
+  if (!modelName && !modelId) return [new Error(Errors.IDENTIFIER_MISSING)];
+  if (typeof modelId === 'number') {
+    modelId = modelId.toString();
+  }
+  try {
+    const fieldList: string[] = await AnkiDroidModule.getFieldList(
+      modelName || null,
+      modelId || null,
+    );
+    return [null, fieldList];
+  } catch (error) {
+    console.warn(MODULE_NAME, error.toString());
+    return [new Error(Errors.UNKNOWN_ERROR), []];
   }
 }
 

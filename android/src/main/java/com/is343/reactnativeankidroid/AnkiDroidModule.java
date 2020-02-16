@@ -245,17 +245,8 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
         && (mApi.getFieldList(prefsModelId).length >= numFields)) { // could potentially have been renamed
       return prefsModelId;
     }
-    Map<Long, String> modelList = mApi.getModelList(numFields);
-    if (modelList != null) {
-      for (Map.Entry<Long, String> entry : modelList.entrySet()) {
-        if (entry.getValue().equals(modelName)) {
-          return entry.getKey(); // first model wins
-        }
-      }
-    }
-    // model no longer exists (by name nor old id), the number of fields was
-    // reduced, or API error
-    return null;
+    Long mid = _getModelId(modelName, numFields);
+    return mid;
   }
 
   /**
@@ -308,6 +299,26 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
   }
 
   /**
+   * Get the ID of the model which matches the name
+   * @param modelName Exact name of model
+   * @return the ID of the model that has given name, or null if no model was found
+   *         or API error
+   */
+  private Long _getModelId(String modelName, int numFields) {
+    Map<Long, String> modelList = mApi.getModelList(numFields);
+    if (modelList != null) {
+      for (Map.Entry<Long, String> entry : modelList.entrySet()) {
+        if (entry.getValue().equals(modelName)) {
+          return entry.getKey(); // first model wins
+        }
+      }
+    }
+    // model no longer exists (by name nor old id), the number of fields was
+    // reduced, or API error
+    return null;
+  }
+
+  /**
    * Gets all deck names and IDs
    * @return an array of all deck names and IDs, or null if no decks were found
    *         or API error
@@ -326,6 +337,30 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
         }
       }
       promise.resolve(deckArray);
+    } catch (Exception e) {
+      promise.reject(e.toString());
+    }
+  }
+
+  /**
+   * Gets all model names and IDs
+   * @return an array of all model names and IDs, or null if no models were found
+   *         or API error
+   */
+  @ReactMethod
+  public void getModelList(Promise promise) {
+    try {
+      Map<Long, String> modelList = mApi.getModelList(0);
+      WritableArray modelArray = new WritableNativeArray();
+      if (modelList != null) {
+        for (Map.Entry<Long, String> entry : modelList.entrySet()) {
+        WritableMap modelMap = new WritableNativeMap();
+        modelMap.putString("id", entry.getKey().toString());
+        modelMap.putString("name", entry.getValue());
+        modelArray.pushMap(modelMap);
+        }
+      }
+      promise.resolve(modelArray);
     } catch (Exception e) {
       promise.reject(e.toString());
     }

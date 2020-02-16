@@ -109,13 +109,24 @@ const App = () => {
   const [apiAvailable, setApiAvailable] = React.useState(false);
   const [hasPermission, setHasPermission] = React.useState(false);
   const [decks, setDecks] = React.useState([]);
+  const [models, setModels] = React.useState([]);
   const [showDecks, setShowDecks] = React.useState(false);
+  const [showModels, setShowModels] = React.useState(false);
   const [deckName, setDeckName] = React.useState('');
 
   const getDeckList = async () => {
     const [error, deckList] = await AnkiDroid.getDeckList();
     if (deckList) {
       setDecks(deckList)
+    }
+  }
+
+  const getModelList = async () => {
+    const [error, modelList] = await AnkiDroid.getModelList();
+    console.warn('modelList', modelList);
+    console.warn('error', error);
+    if (modelList) {
+      setModels(modelList)
     }
   }
 
@@ -154,17 +165,24 @@ const App = () => {
     }
   }, [hasPermission]);
 
-  const handleShowDeckPress = () => {
+  const handleShowDecksPress = () => {
     if (!decks.length) {
       getDeckList();
     }
     setShowDecks(prevValue => !prevValue);
   }
 
-  const renderDeckList = () => decks.map((deck, index) => {
+  const handleShowModelsPress = () => {
+    if (!models.length) {
+      getModelList();
+    }
+    setShowModels(prevValue => !prevValue);
+  }
+
+  const renderList = (list) => list.map((item, index) => {
     return (<View key={index}>
-      <Text style={styles.sectionDescription}>{`Name: ${deck.name}`}</Text>
-      <Text style={styles.sectionDescription}>{`ID: ${deck.id}`}</Text>
+      <Text style={styles.sectionDescription}>{`Name: ${item.name}`}</Text>
+      <Text style={styles.sectionDescription}>{`ID: ${item.id}`}</Text>
     </View>)
   });
 
@@ -195,18 +213,18 @@ const App = () => {
             <View style={styles.sectionContainer}>
               <Text style={styles.sectionTitle}>{`Existing decks:`}</Text>
               <Button
-                onPress={handleShowDeckPress}
+                onPress={handleShowDecksPress}
                 title={`${showDecks ? 'Hide' : 'Show'} Deck List`}
               />
-              {showDecks && renderDeckList()}
+              {showDecks && renderList(decks)}
             </View>
             <View style={styles.sectionContainer}>
               <Text style={styles.sectionTitle}>{`Existing models:`}</Text>
               <Button
-                onPress={handleShowDeckPress}
-                title={`${showDecks ? 'Hide' : 'Show'} Model List`}
+                onPress={handleShowModelsPress}
+                title={`${showModels ? 'Hide' : 'Show'} Model List`}
               />
-              {showDecks && renderDeckList()}
+              {showModels && renderList(models)}
             </View>
           </View>
         </ScrollView>

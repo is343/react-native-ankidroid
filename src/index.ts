@@ -2,6 +2,7 @@ import { Deck } from './ankidroid';
 import {
   checkPermission,
   getDeckList,
+  getModelList,
   getSelectedDeckName,
   isApiAvailable,
   requestPermission,
@@ -14,6 +15,7 @@ const AnkiDroid = {
   requestPermission,
   getSelectedDeckName,
   getDeckList,
+  getModelList,
 };
 
 export default AnkiDroid;

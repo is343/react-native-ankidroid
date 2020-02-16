@@ -126,6 +126,27 @@ export async function getDeckList(
 }
 
 /**
+ * Gets the ID and name for all modelss
+ * @param rationale optional `PermissionsAndroid` message to show when requesting permissions
+ * @return  a tuple of any errors and the result `[error, result]`
+ */
+export async function getModelList(
+  rationale: Rationale = null,
+): Promise<Result<DeckInfo[]>> {
+  if (!androidCheck()) return [new Error(Errors.OS_ERROR)];
+  const permissionStatus = await requestPermission(rationale);
+  if (permissionStatus[1] !== 'granted')
+    return [new Error(Errors.PERMISSION_ERROR)];
+  try {
+    const modelss: DeckInfo[] = await AnkiDroidModule.getModelList();
+    return [null, modelss];
+  } catch (error) {
+    console.warn(MODULE_NAME, error.toString());
+    return [new Error(Errors.UNKNOWN_ERROR)];
+  }
+}
+
+/**
  * Gets the name of the currently selected deck
  * @param rationale optional `PermissionsAndroid` message to show when requesting permissions
  * @return  a tuple of any errors and the result `[error, result]`

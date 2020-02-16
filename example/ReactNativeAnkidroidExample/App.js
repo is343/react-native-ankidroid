@@ -250,7 +250,7 @@ const App = () => {
             <View style={styles.sectionContainer}>
               <Text style={styles.sectionTitle}>{`Get model fields by model name or ID`}</Text>
               <TextInput
-                style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+                style={styles.input}
                 onChangeText={text => setModelIdentifier(text)}
                 value={modelIdentifier}
               />
@@ -293,8 +293,10 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     color: Colors.dark,
   },
-  highlight: {
-    fontWeight: '700',
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
   },
   footer: {
     color: Colors.dark,

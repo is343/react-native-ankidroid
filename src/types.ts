@@ -17,7 +17,10 @@ export enum ErrorText {
   ARRAY_OF_STRING_OR_NULL = 'must be an array of strings or null',
   ARRAY_LENGTH_2 = 'must be an array with a length of 2',
   ARRAY_SAME_LENGTH = 'model and value fields must be the same length',
+  MODEL_FIELDS_DIFFERENT = 'the saved model fields and model fields submitted with the note are different',
   NOTE_UNKNOWN = 'Unknown type error while adding note',
+  DECK_INFO_MISSING = 'Must have either deck ID or deck properties',
+  MODEL_INFO_MISSING = 'Must have either model ID or deck properties',
 }
 /**
  * errors that can be thrown
@@ -36,27 +39,36 @@ export enum Errors {
 /** Result tuple for anything that may return an error */
 export type Result<T> = [Error | null, T?];
 
-/**
- * the data object for setting up the deck
- */
-export interface ModelSettings {
-  deckName: string;
-  modelName: string;
-  dbDeckReference: string;
-  dbModelReference: string;
-  modelFields: string[];
+export interface NewDeckProperties {
+  dbReference: string;
+  name: string;
+}
+
+export interface NewModelProperties extends NewDeckProperties {
+  fields: string[];
   cardNames: string[];
   questionFormat: string[];
   answerFormat: string[];
+  /** `null` for no tags */
   tags?: string[];
+  /** `null` for default CSS */
   css?: string;
 }
-export interface Note extends ModelSettings {
-  valueFields: string[];
+
+/**
+ * the data object for setting up the deck
+ */
+export interface Settings {
+  deckId?: number | string;
+  deckProperties?: NewDeckProperties;
+  modelId?: number | string;
+  modelProperties?: NewModelProperties;
 }
-export interface Note extends ModelSettings {
+export interface Note extends Settings {
   valueFields: string[];
+  modelFields: string[];
 }
+
 /**
  * for getting argument names
  */

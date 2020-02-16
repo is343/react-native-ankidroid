@@ -121,12 +121,12 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
   }
 
   /**
-   * get the deck id
+   * get the deck id or create if it is a new deck
    * @param dbDeckReference
    * @param deckName
    * @return might be null if there was a problem, or to return the default deck
    */
-  private Long getDeckId(String dbDeckReference, String deckName) {
+  private Long getDeckIdOrCreateIfNew(String dbDeckReference, String deckName) {
     Long did = findDeckIdByName(dbDeckReference, deckName);
     if (did == null) {
       did = getApi().addNewDeck(deckName);
@@ -136,7 +136,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
   }
 
   /**
-   * get model id
+   * get model id or create if it is a new model
    * @param dbModelReference
    * @param deckId
    * @param modelName
@@ -147,7 +147,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
    * @param css - null for default CSS.
    * @return might be null if there was an error
    */
-  private Long getModelId(String dbModelReference, String modelName, String[] modelFields, Long deckId,
+  private Long getModelIdOrCreateIfNew(String dbModelReference, String modelName, String[] modelFields, Long deckId,
       String[] cardNames, String[] questionFormat, String[] answerFormat, String css) {
     Long mid = findModelIdByName(dbModelReference, modelName, modelFields.length);
     if (mid == null) {
@@ -372,12 +372,15 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void getFieldList(String modelName, String modelId, Promise promise) {
     try {
-      // use the model ID if supplied
-      String[] fieldList = modelId != null ? getApi().getFieldList(Long.parseLong(modelId)) : getApi().getFieldList(_getModelId(modelName, 0));
       WritableArray fieldArray = new WritableNativeArray();
-      if (fieldList != null) {
-        for (int index = 0; index < fieldList.length; index++) {
-          fieldArray.pushString(fieldList[index]);
+      // use the model ID if supplied
+      Long mid = modelId != null ? Long.parseLong(modelId) : _getModelId(modelName, 0);
+      if(mid == null) {
+        String[] fieldList = getApi().getFieldList(mid);
+        if (fieldList != null) {
+          for (int index = 0; index < fieldList.length; index++) {
+            fieldArray.pushString(fieldList[index]);
+          }
         }
       }
       promise.resolve(fieldArray);
@@ -389,7 +392,9 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
   /**
    * Create the new note and add it to the deck
    * @param deckName
+   * @param deckId - will not create a new deck if provided
    * @param modelName
+   * @param modelId - will not create a new model if provided
    * @param dbDeckReference
    * @param dbModelReference
    * @param incomingModelFields
@@ -402,7 +407,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
    * @return might be null if there was an error
    */
   @ReactMethod
-  public void addNote(String deckName, String modelName, String dbDeckReference, String dbModelReference,
+  public void addNote(String deckName, String deckId, String modelName, String modelId, String dbDeckReference, String dbModelReference,
       ReadableArray incomingModelFields, ReadableArray incomingValueFields, ReadableArray incomingTags,
       ReadableArray incomingCardNames, ReadableArray incomingQuestionFormat, ReadableArray incomingAnswerFormat,
       String css, Promise promise) {
@@ -417,17 +422,19 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
       // to account for no tags
       Set<String> tags = tagArray == null ? null : new HashSet<String>(Arrays.asList(tagArray));
 
-      Long deckId = getDeckId(dbDeckReference, deckName);
+      // use the deck ID if supplied
+      Long did = deckId != null ? Long.parseLong(deckId) : getDeckIdOrCreateIfNew(dbDeckReference, deckName);
 
-      if (deckId == null) {
+      if (did == null) {
         promise.resolve(FAILED_TO_CREATE_DECK);
         return;
       }
 
-      Long modelId = getModelId(dbModelReference, modelName, modelFields, deckId, cardNames, questionFormat,
-          answerFormat, css);
+      // use the model ID if supplied
+      Long mid = modelId != null ? Long.parseLong(modelId) : getModelIdOrCreateIfNew(dbModelReference, modelName, modelFields, deckId, cardNames, questionFormat,
+      answerFormat, css);
 
-      if (modelId == null) {
+      if (mid == null) {
         promise.resolve(FAILED_TO_CREATE_MODEL);
         return;
       }

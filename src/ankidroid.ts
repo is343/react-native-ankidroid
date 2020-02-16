@@ -1,37 +1,225 @@
-import { NativeModules } from 'react-native';
+import {
+  NativeModules,
+  Permission,
+  PermissionsAndroid,
+  PermissionStatus,
+  Platform,
+  Rationale,
+} from 'react-native';
 import {
   Errors,
   ErrorText,
-  ModelSettings,
+  Indentifier,
   MODULE_NAME,
+  NewDeckProperties,
+  NewModelProperties,
   Note,
   NoteKeys,
   Result,
+  Settings,
 } from './types';
-import { androidCheck, checkPermission } from './utilities';
 
 const { AnkiDroidModule } = NativeModules;
 
 /**
  * Create deck, model, and references. Once set up, notes can be created.
  *  All newly created notes must have the correct matching info.
+ * - only one needed of (deckId or deckPoperties) and (modelId or modelProperties)
  * @constructor modelSettings object with the below values
- * - deckName: `string`
- * - modelName: `string`
- * - dbDeckReference: `string`
- * - dbModelReference: `string`
- * - modelFields: `string[]`
- * - cardNames: `string[]`
- * - questionFormat: `string[]`
- * - answerFormat: `string[]`
- * - tags: `string[]` - `null` for no tags
- * - css: `string` - `null` for default CSS.
+ * - deckId: required if `deckProperties` missing
+ * - deckProperties: required if `deckId` missing
+ * - modelId: required if `modelProperties` missing
+ * - modelProperties: required if `modelId` missing
  */
-export class Deck {
-  modelSettings: ModelSettings;
-  constructor(modelSettings: ModelSettings) {
+export class AnkiDroid {
+  modelSettings: Settings;
+  constructor(modelSettings: Settings) {
     this.modelSettings = modelSettings;
   }
+
+  ////////////
+  // STATIC //
+  ////////////
+
+  /**
+   * Check if android
+   * - display error message if not android
+   * @returns `true` if android
+   */
+  static androidCheck(): boolean {
+    if (Platform.OS === 'android') {
+      return true;
+    }
+    console.warn(MODULE_NAME, Errors.OS_ERROR);
+    return false;
+  }
+
+  /**
+   * Get the AnkiDroid API permission name
+   */
+  static async getPermissionName(): Promise<any> {
+    let permissionName;
+    try {
+      permissionName = await AnkiDroidModule.getPermissionName();
+    } catch (error) {
+      permissionName = null;
+      console.warn(MODULE_NAME, ErrorText.PERMISSION_NAME, error);
+    }
+    return permissionName;
+  }
+
+  /**
+   * Check if the AnkiDroid API is available on the phone
+   * @return `true` if the API is available to use
+   */
+  static async isApiAvailable(): Promise<boolean> {
+    if (!AnkiDroid.androidCheck()) return false;
+    let apiAvailable: boolean;
+    try {
+      apiAvailable = await AnkiDroidModule.isApiAvailable();
+    } catch (error) {
+      apiAvailable = false;
+      console.warn(MODULE_NAME, ErrorText.API, error);
+    }
+    return apiAvailable;
+  }
+
+  /**
+   * Check the permission status
+   * @return `true` if permission have been granted
+   */
+  static async checkPermission(): Promise<boolean> {
+    if (!AnkiDroid.androidCheck()) return false;
+    let permissionName: Permission;
+    try {
+      permissionName = await AnkiDroid.getPermissionName();
+    } catch (error) {
+      console.warn(MODULE_NAME, error.toString());
+      return false;
+    }
+    if (!permissionName) return false;
+    try {
+      const permission = await PermissionsAndroid.check(permissionName);
+      return permission;
+    } catch (error) {
+      console.warn(MODULE_NAME, ErrorText.PERMISSIONS_CHECK, error);
+      return false;
+    }
+  }
+
+  /**
+   * Request AnkiDroid API permissions
+   * @param rationale optional `PermissionsAndroid` message to show when requesting permissions
+   * @return  a tuple of any errors and the result `[error, result]`
+   */
+  static async requestPermission(
+    rationale: Rationale = null,
+  ): Promise<Result<PermissionStatus>> {
+    if (!AnkiDroid.androidCheck()) return [new Error(Errors.OS_ERROR)];
+    let permissionName: Permission;
+    try {
+      permissionName = await AnkiDroid.getPermissionName();
+    } catch (error) {
+      console.warn(MODULE_NAME, error.toString());
+      return [new Error(Errors.UNKNOWN_ERROR)];
+    }
+    if (!permissionName) return [null, 'denied'];
+    try {
+      const permissionRequest = (await PermissionsAndroid.request(
+        permissionName,
+        rationale,
+      )) as PermissionStatus;
+      return [null, permissionRequest];
+    } catch (error) {
+      console.warn(MODULE_NAME, ErrorText.PERMISSIONS_REQUEST, error);
+      return [new Error(error.toString())];
+    }
+  }
+
+  /**
+   * Gets the ID and name for all decks
+   * @return  a tuple of any errors and the result `[error, result]`
+   */
+  static async getDeckList(): Promise<Result<Indentifier[]>> {
+    if (!AnkiDroid.androidCheck()) return [new Error(Errors.OS_ERROR)];
+    const permissionStatus = await AnkiDroid.checkPermission();
+    if (!permissionStatus) return [new Error(Errors.PERMISSION_ERROR)];
+    try {
+      const decks: Indentifier[] = await AnkiDroidModule.getDeckList();
+      return [null, decks];
+    } catch (error) {
+      console.warn(MODULE_NAME, error.toString());
+      return [new Error(Errors.UNKNOWN_ERROR)];
+    }
+  }
+
+  /**
+   * Gets the ID and name for all models
+   * @return  a tuple of any errors and the result `[error, result]`
+   */
+  static async getModelList(): Promise<Result<Indentifier[]>> {
+    if (!AnkiDroid.androidCheck()) return [new Error(Errors.OS_ERROR)];
+    const permissionStatus = await AnkiDroid.checkPermission();
+    if (!permissionStatus) return [new Error(Errors.PERMISSION_ERROR)];
+    try {
+      const models: Indentifier[] = await AnkiDroidModule.getModelList();
+      return [null, models];
+    } catch (error) {
+      console.warn(MODULE_NAME, error.toString());
+      return [new Error(Errors.UNKNOWN_ERROR)];
+    }
+  }
+
+  /**
+   * Gets all field names for a specific model
+   * @param modelName required if `modelId` is not used
+   * @param modelId required if `modelName` is not used
+   * @return  a tuple of any errors and the result `[error, result]`
+   */
+  static async getFieldList(
+    modelName?: string,
+    modelId?: number | string,
+  ): Promise<Result<string[]>> {
+    if (!AnkiDroid.androidCheck()) return [new Error(Errors.OS_ERROR)];
+    const permissionStatus = await AnkiDroid.checkPermission();
+    if (!permissionStatus) return [new Error(Errors.PERMISSION_ERROR)];
+    if (!modelName && !modelId) return [new Error(Errors.IDENTIFIER_MISSING)];
+    if (typeof modelId === 'number') {
+      modelId = modelId.toString();
+    }
+    try {
+      const fieldList: string[] = await AnkiDroidModule.getFieldList(
+        modelName || null,
+        modelId || null,
+      );
+      return [null, fieldList];
+    } catch (error) {
+      console.warn(MODULE_NAME, error.toString());
+      return [new Error(Errors.UNKNOWN_ERROR)];
+    }
+  }
+
+  /**
+   * Gets the name of the currently selected deck
+   * @return  a tuple of any errors and the result `[error, result]`
+   */
+  static async getSelectedDeckName(): Promise<Result<string>> {
+    if (!AnkiDroid.androidCheck()) return [new Error(Errors.OS_ERROR)];
+    const permissionStatus = await AnkiDroid.checkPermission();
+    if (!permissionStatus) return [new Error(Errors.PERMISSION_ERROR)];
+    try {
+      const deckName: string = await AnkiDroidModule.getSelectedDeckName();
+      return [null, deckName];
+    } catch (error) {
+      console.warn(MODULE_NAME, error.toString());
+      return [new Error(Errors.UNKNOWN_ERROR)];
+    }
+  }
+
+  /////////////
+  // PRIVATE //
+  /////////////
+
   /**
    * check all note values for errors
    * @param note
@@ -58,6 +246,62 @@ export class Deck {
         this.logTypeError(key);
         return Errors.TYPE_ERROR;
       }
+    }
+    return null;
+  }
+  /**
+   * check all property values for errors
+   * @param properties
+   * @returns `null` if no errors
+   */
+  private checkForPropertyErrors(
+    properties: NewDeckProperties | NewModelProperties,
+  ): Errors {
+    for (var key in properties) {
+      // skip loop if the property is from prototype
+      if (!properties.hasOwnProperty(key)) continue;
+      // check for keys that can have a default null value
+      if (!properties[key] && (key === NoteKeys.tags || key === NoteKeys.css)) {
+        continue;
+      }
+      if (!this.checkArrayLength(properties[key], key)) {
+        return Errors.TYPE_ERROR;
+      }
+      if (!this.checkValidString(properties[key])) {
+        this.logTypeError(key);
+        return Errors.TYPE_ERROR;
+      }
+    }
+    return null;
+  }
+  private checkIfModelFieldsAreTheSame(
+    modelFields: string[],
+    modelFieldsFromNote: string[],
+  ): Errors {
+    let isSame = true;
+    if (
+      modelFields.length !== modelFieldsFromNote.length &&
+      Array.isArray(modelFields) &&
+      Array.isArray(modelFieldsFromNote)
+    ) {
+      isSame = false;
+    }
+    if (isSame) {
+      const compareSet = new Set(modelFields);
+      modelFieldsFromNote.forEach(field => {
+        compareSet.add(field);
+      });
+      if (compareSet.size !== modelFields.length) {
+        isSame = false;
+      }
+    }
+    if (!isSame) {
+      console.warn(
+        MODULE_NAME,
+        ErrorText.ARGUMENT_TYPE,
+        ErrorText.MODEL_FIELDS_DIFFERENT,
+      );
+      return Errors.TYPE_ERROR;
     }
     return null;
   }
@@ -192,42 +436,83 @@ export class Deck {
       return typeof itemToCheck === 'string';
     }
   }
+
+  ////////////
+  // PUBLIC //
+  ////////////
+
   /**
    * Create notes using the created deck model
    * @param note length must match the settings used when creating the deck
    * @return  a tuple of any errors and the result `[error, result]`
    * @return the added note ID
    */
-  async addNote(valueFields: string[]): Promise<Result<number>> {
-    if (!androidCheck()) return [new Error(Errors.OS_ERROR)];
-    const permissionStatus = await checkPermission();
+  public async addNote(
+    valueFields: string[],
+    modelFields: string[],
+  ): Promise<Result<number>> {
+    if (!AnkiDroid.androidCheck()) return [new Error(Errors.OS_ERROR)];
+    const permissionStatus = await AnkiDroid.checkPermission();
     if (!permissionStatus) return [new Error(Errors.PERMISSION_ERROR)];
+
+    const noteErrorCheckResults = this.checkForAddNoteErrors({
+      valueFields,
+      modelFields,
+    });
+    if (noteErrorCheckResults) return [new Error(noteErrorCheckResults)];
+
+    let deckPropertiesToUse = {} as NewDeckProperties;
+    let modelPropertiesToUse = {} as NewModelProperties;
+    const {
+      deckId,
+      deckProperties,
+      modelId,
+      modelProperties,
+    } = this.modelSettings;
+
+    if (!deckId && !deckProperties) {
+      return [new Error(ErrorText.DECK_INFO_MISSING)];
+    } else if (!deckId) {
+      const errorCheckResults = this.checkForPropertyErrors(deckProperties);
+      if (errorCheckResults) return [new Error(errorCheckResults)];
+      deckPropertiesToUse = deckProperties;
+    }
+    if (!modelId && !modelProperties) {
+      return [new Error(ErrorText.DECK_INFO_MISSING)];
+    } else if (!modelId) {
+      const errorCheckResults = this.checkForPropertyErrors(modelProperties);
+      if (errorCheckResults) return [new Error(errorCheckResults)];
+      modelPropertiesToUse = modelProperties;
+    }
     // destructure with default values
     const {
-      deckName,
-      modelName,
-      dbDeckReference,
-      dbModelReference,
-      modelFields,
+      fields,
       cardNames,
       questionFormat,
       answerFormat,
       tags = null,
       css = null,
-    } = this.modelSettings;
-    const noteData: Note = { ...this.modelSettings, valueFields };
-    // check for errors with the default null values added
-    const errorCheckResults = this.checkForAddNoteErrors({
-      ...noteData,
-      tags,
-      css,
-    });
-    if (errorCheckResults) return [new Error(errorCheckResults)];
+    } = modelPropertiesToUse;
+    const modelName = modelPropertiesToUse.name;
+    const dbModelReference = modelPropertiesToUse.dbReference;
+    const deckName = deckPropertiesToUse.name;
+    const dbDeckReference = deckPropertiesToUse.dbReference;
+
+    if (!modelId) {
+      const errorCheckModelFields = this.checkIfModelFieldsAreTheSame(
+        fields,
+        modelFields,
+      );
+      if (errorCheckModelFields) return [new Error(errorCheckModelFields)];
+    }
+
     let addedNoteId: string | Errors;
     try {
       addedNoteId = await AnkiDroidModule.addNote(
         deckName,
+        deckId,
         modelName,
+        modelId,
         dbDeckReference,
         dbModelReference,
         modelFields,

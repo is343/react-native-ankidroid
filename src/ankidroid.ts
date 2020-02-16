@@ -6,7 +6,7 @@ import {
   MODULE_NAME,
   Note,
   NoteKeys,
-  PermissionResults,
+  Result,
 } from './types';
 import { androidCheck, requestPermission } from './utilities';
 
@@ -76,7 +76,7 @@ export class Deck {
         console.warn(
           MODULE_NAME,
           ErrorText.ARGUMENT_TYPE,
-          ErrorText.ARRAY_SAME_LENGTH
+          ErrorText.ARRAY_SAME_LENGTH,
         );
         return false;
       }
@@ -85,7 +85,7 @@ export class Deck {
         MODULE_NAME,
         ErrorText.ARGUMENT_TYPE,
         ErrorText.ARRAY_SAME_LENGTH,
-        error.toString()
+        error.toString(),
       );
       return false;
     }
@@ -98,7 +98,7 @@ export class Deck {
    */
   private checkArrayLength(
     noteValue: string | string[],
-    noteKey: string
+    noteKey: string,
   ): boolean {
     try {
       switch (noteKey) {
@@ -117,14 +117,14 @@ export class Deck {
       console.warn(
         MODULE_NAME,
         ErrorText.ARGUMENT_TYPE,
-        `${noteKey} ${ErrorText.ARRAY_LENGTH_2}`
+        `${noteKey} ${ErrorText.ARRAY_LENGTH_2}`,
       );
     } catch (error) {
       console.warn(
         MODULE_NAME,
         ErrorText.ARGUMENT_TYPE,
         `${noteKey} ${ErrorText.ARRAY_LENGTH_2}`,
-        error.toString()
+        error.toString(),
       );
       return false;
     }
@@ -177,7 +177,7 @@ export class Deck {
     console.warn(
       MODULE_NAME,
       ErrorText.ARGUMENT_TYPE,
-      `${noteKey} ${errorText}`
+      `${noteKey} ${errorText}`,
     );
   }
   /**
@@ -201,11 +201,11 @@ export class Deck {
    */
   async addNote(
     valueFields: string[],
-    permissionRational: Rationale = null
+    permissionRational: Rationale = null,
   ): Promise<Result<number>> {
     if (!androidCheck()) return [new Error(Errors.OS_ERROR)];
     const permissionStatus = await requestPermission(permissionRational);
-    if (permissionStatus[1] !== PermissionResults.GRANTED)
+    if (permissionStatus[1] !== 'granted')
       return [new Error(Errors.PERMISSION_ERROR)];
     // destructure with default values
     const {
@@ -241,7 +241,7 @@ export class Deck {
         cardNames,
         questionFormat,
         answerFormat,
-        css
+        css,
       );
     } catch (error) {
       console.warn(MODULE_NAME, error.toString());

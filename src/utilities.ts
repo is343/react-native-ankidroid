@@ -2,17 +2,11 @@ import {
   NativeModules,
   Permission,
   PermissionsAndroid,
+  PermissionStatus,
   Platform,
   Rationale,
 } from 'react-native';
-import {
-  DeckInfo,
-  Errors,
-  ErrorText,
-  MODULE_NAME,
-  PermissionResults,
-  Result,
-} from './types';
+import { DeckInfo, Errors, ErrorText, MODULE_NAME, Result } from './types';
 
 const { AnkiDroidModule } = NativeModules;
 
@@ -87,8 +81,8 @@ export async function checkPermission(): Promise<boolean> {
  * @param returns optional `PermissionsAndroid` message to show when requesting permissions
  */
 export async function requestPermission(
-  rationale: Rationale = null
-): Promise<Result<PermissionResults>> {
+  rationale: Rationale = null,
+): Promise<Result<PermissionStatus>> {
   if (!androidCheck()) return [new Error(Errors.OS_ERROR)];
   let permissionName: Permission;
   try {
@@ -97,12 +91,12 @@ export async function requestPermission(
     console.warn(MODULE_NAME, error.toString());
     return [new Error(Errors.UNKNOWN_ERROR)];
   }
-  if (!permissionName) return [null, PermissionResults.DENIED];
+  if (!permissionName) return [null, 'denied'];
   try {
     const permissionRequest = (await PermissionsAndroid.request(
       permissionName,
-      rationale
-    )) as PermissionResults;
+      rationale,
+    )) as PermissionStatus;
     return [null, permissionRequest];
   } catch (error) {
     console.warn(MODULE_NAME, ErrorText.PERMISSIONS_REQUEST, error);
@@ -116,11 +110,11 @@ export async function requestPermission(
  * @param returns optional `PermissionsAndroid` message to show when requesting permissions
  */
 export async function getDeckList(
-  rationale: Rationale = null
+  rationale: Rationale = null,
 ): Promise<Result<DeckInfo[]>> {
   if (!androidCheck()) return [new Error(Errors.OS_ERROR)];
   const permissionStatus = await requestPermission(rationale);
-  if (permissionStatus[1] !== PermissionResults.GRANTED)
+  if (permissionStatus[1] !== 'granted')
     return [new Error(Errors.PERMISSION_ERROR)];
   try {
     const decks: DeckInfo[] = await AnkiDroidModule.getDeckList();

@@ -18,7 +18,13 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableNativeArray;
+import com.facebook.react.bridge.WritableNativeMap;
+import com.facebook.react.bridge.Arguments;
 
 import com.ichi2.anki.api.AddContentApi;
 import com.ichi2.anki.api.NoteInfo;
@@ -57,6 +63,19 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
   public void getPermissionName(Promise promise) {
     try {
       promise.resolve(READ_WRITE_PERMISSION);
+    } catch (Exception e) {
+      promise.reject(e.toString());
+    }
+  }
+
+  /**
+   * Returns the name of the currently selected deck
+   */
+  @ReactMethod
+  public void getSelectedDeckName(Promise promise) {
+    try {
+      String deckName = getApi().getSelectedDeckName();
+      promise.resolve(deckName);
     } catch (Exception e) {
       promise.reject(e.toString());
     }
@@ -102,12 +121,12 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
   }
 
   /**
-   * get the deck id
+   * get the deck id or create if it is a new deck
    * @param dbDeckReference
    * @param deckName
    * @return might be null if there was a problem, or to return the default deck
    */
-  private Long getDeckId(String dbDeckReference, String deckName) {
+  private Long getDeckIdOrCreateIfNew(String dbDeckReference, String deckName) {
     Long did = findDeckIdByName(dbDeckReference, deckName);
     if (did == null) {
       did = getApi().addNewDeck(deckName);
@@ -117,7 +136,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
   }
 
   /**
-   * get model id
+   * get model id or create if it is a new model
    * @param dbModelReference
    * @param deckId
    * @param modelName
@@ -128,7 +147,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
    * @param css - null for default CSS.
    * @return might be null if there was an error
    */
-  private Long getModelId(String dbModelReference, String modelName, String[] modelFields, Long deckId,
+  private Long getModelIdOrCreateIfNew(String dbModelReference, String modelName, String[] modelFields, Long deckId,
       String[] cardNames, String[] questionFormat, String[] answerFormat, String css) {
     Long mid = findModelIdByName(dbModelReference, modelName, modelFields.length);
     if (mid == null) {
@@ -222,21 +241,12 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
     long prefsModelId = modelsDb.getLong(modelName, -1L);
     // if we have a reference saved to modelName and it exists and has at least
     // numFields then return it
-    if ((prefsModelId != -1L) && (mApi.getModelName(prefsModelId) != null) && (mApi.getFieldList(prefsModelId) != null)
-        && (mApi.getFieldList(prefsModelId).length >= numFields)) { // could potentially have been renamed
+    if ((prefsModelId != -1L) && (getApi().getModelName(prefsModelId) != null) && (getApi().getFieldList(prefsModelId) != null)
+        && (getApi().getFieldList(prefsModelId).length >= numFields)) { // could potentially have been renamed
       return prefsModelId;
     }
-    Map<Long, String> modelList = mApi.getModelList(numFields);
-    if (modelList != null) {
-      for (Map.Entry<Long, String> entry : modelList.entrySet()) {
-        if (entry.getValue().equals(modelName)) {
-          return entry.getKey(); // first model wins
-        }
-      }
-    }
-    // model no longer exists (by name nor old id), the number of fields was
-    // reduced, or API error
-    return null;
+    Long mid = _getModelId(modelName, numFields);
+    return mid;
   }
 
   /**
@@ -261,7 +271,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
       // Otherwise try to check if we have a reference to a deck that was renamed and
       // return that
       did = decksDb.getLong(deckName, -1);
-      if (did != -1 && mApi.getDeckName(did) != null) {
+      if (did != -1 && getApi().getDeckName(did) != null) {
         return did;
       } else {
         // If the deck really doesn't exist then return null
@@ -277,7 +287,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
    *         or API error
    */
   private Long _getDeckId(String deckName) {
-    Map<Long, String> deckList = mApi.getDeckList();
+    Map<Long, String> deckList = getApi().getDeckList();
     if (deckList != null) {
       for (Map.Entry<Long, String> entry : deckList.entrySet()) {
         if (entry.getValue().equalsIgnoreCase(deckName)) {
@@ -289,9 +299,100 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
   }
 
   /**
+   * Get the ID of the model which matches the name
+   * @param modelName Exact name of model
+   * @return the ID of the model that has given name, or null if no model was found
+   *         or API error
+   */
+  private Long _getModelId(String modelName, int numFields) {
+    Map<Long, String> modelList = getApi().getModelList(numFields);
+    if (modelList != null) {
+      for (Map.Entry<Long, String> entry : modelList.entrySet()) {
+        if (entry.getValue().equals(modelName)) {
+          return entry.getKey(); // first model wins
+        }
+      }
+    }
+    // model no longer exists (by name nor old id), the number of fields was
+    // reduced, or API error
+    return null;
+  }
+
+  /**
+   * Gets all deck names and IDs
+   * @return an array of all deck names and IDs, or null if no decks were found
+   *         or API error
+   */
+  @ReactMethod
+  public void getDeckList(Promise promise) {
+    try {
+      Map<Long, String> deckList = getApi().getDeckList();
+      WritableArray deckArray = new WritableNativeArray();
+      if (deckList != null) {
+        for (Map.Entry<Long, String> entry : deckList.entrySet()) {
+        WritableMap deckMap = new WritableNativeMap();
+        deckMap.putString("id", entry.getKey().toString());
+        deckMap.putString("name", entry.getValue());
+        deckArray.pushMap(deckMap);
+        }
+      }
+      promise.resolve(deckArray);
+    } catch (Exception e) {
+      promise.reject(e.toString());
+    }
+  }
+
+  /**
+   * Gets all model names and IDs
+   * @return an array of all model names and IDs, or API error
+   */
+  @ReactMethod
+  public void getModelList(Promise promise) {
+    try {
+      Map<Long, String> modelList = getApi().getModelList(0); // search for the minimum number of fields required
+      WritableArray modelArray = new WritableNativeArray();
+      if (modelList != null) {
+        for (Map.Entry<Long, String> entry : modelList.entrySet()) {
+        WritableMap modelMap = new WritableNativeMap();
+        modelMap.putString("id", entry.getKey().toString());
+        modelMap.putString("name", entry.getValue());
+        modelArray.pushMap(modelMap);
+        }
+      }
+      promise.resolve(modelArray);
+    } catch (Exception e) {
+      promise.reject(e.toString());
+    }
+  }
+
+  /**
+   * Gets all field names for a specific model
+   * @return an array of all fields, or API error
+   */
+  @ReactMethod
+  public void getFieldList(String modelName, String modelId, Promise promise) {
+    try {
+      WritableArray fieldArray = new WritableNativeArray();
+      // use the model ID if supplied
+      Long mid = modelId != null ? Long.parseLong(modelId) : _getModelId(modelName, 0);
+      String[] fieldList = getApi().getFieldList(mid);
+      if (fieldList != null) {
+        for (int index = 0; index < fieldList.length; index++) {
+          fieldArray.pushString(fieldList[index]);
+        }
+      }
+      promise.resolve(fieldArray);
+    } catch (Exception e) {
+      promise.reject(e.toString());
+    }
+  }
+
+  /**
    * Create the new note and add it to the deck
    * @param deckName
+   * @param deckId - will not create a new deck if provided
    * @param modelName
+   * @param modelId - will not create a new model if provided
    * @param dbDeckReference
    * @param dbModelReference
    * @param incomingModelFields
@@ -304,7 +405,7 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
    * @return might be null if there was an error
    */
   @ReactMethod
-  public void addNote(String deckName, String modelName, String dbDeckReference, String dbModelReference,
+  public void addNote(String deckName, String deckId, String modelName, String modelId, String dbDeckReference, String dbModelReference,
       ReadableArray incomingModelFields, ReadableArray incomingValueFields, ReadableArray incomingTags,
       ReadableArray incomingCardNames, ReadableArray incomingQuestionFormat, ReadableArray incomingAnswerFormat,
       String css, Promise promise) {
@@ -319,22 +420,24 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
       // to account for no tags
       Set<String> tags = tagArray == null ? null : new HashSet<String>(Arrays.asList(tagArray));
 
-      Long deckId = getDeckId(dbDeckReference, deckName);
+      // use the deck ID if supplied
+      Long did = deckId != null ? Long.parseLong(deckId) : getDeckIdOrCreateIfNew(dbDeckReference, deckName);
 
-      if (deckId == null) {
+      if (did == null) {
         promise.resolve(FAILED_TO_CREATE_DECK);
         return;
       }
 
-      Long modelId = getModelId(dbModelReference, modelName, modelFields, deckId, cardNames, questionFormat,
-          answerFormat, css);
+      // use the model ID if supplied
+      Long mid = modelId != null ? Long.parseLong(modelId) : getModelIdOrCreateIfNew(dbModelReference, modelName, modelFields, did, cardNames, questionFormat,
+      answerFormat, css);
 
-      if (modelId == null) {
+      if (mid == null) {
         promise.resolve(FAILED_TO_CREATE_MODEL);
         return;
       }
 
-      Long addedNoteId = getApi().addNote(modelId, deckId, valueFields, tags);
+      Long addedNoteId = getApi().addNote(mid, did, valueFields, tags);
 
       if (addedNoteId == null) {
         promise.resolve(FAILED_TO_ADD_NOTE);

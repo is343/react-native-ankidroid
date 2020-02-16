@@ -1,15 +1,3 @@
-import { Deck } from "./ankidroid"
-import {
-  checkPermission,
-  isApiAvailable,
-  requestPermission,
-} from "./utilities"
+import { AnkiDroid } from './ankidroid';
 
-const AnkiDroid = {
-  Deck,
-  isApiAvailable,
-  checkPermission,
-  requestPermission,
-}
-
-export default AnkiDroid
+export default AnkiDroid;

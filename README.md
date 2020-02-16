@@ -70,45 +70,70 @@ The library will be automatically linked **BUT step 4 of the manual installation
 ## Usage
 
 ```javascript
-import AnkiDroid from "react-native-ankidroid";
+import AnkiDroid from 'react-native-ankidroid';
 
 await AnkiDroid.isApiAvailable();
 ```
 
 AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
-**(The first 3 methods return Promises)**
+**\*(returns a Promise)**
 
-- **isApiAvailable()** - checks if the AnkiDroid API is avaiable (AnkiDroid is installed on the device)
+- **isApiAvailable()\*** - checks if the AnkiDroid API is avaiable (AnkiDroid is installed on the device)
   _in order to access the API, AnkiDroid may need to be installed before the react native app_
-- **checkPermission()**
-- **requestPermission(rationale)**
+- **checkPermission()\***
+- **requestPermission(rationale)\***
   -- rationale (optional)
-- **Deck(deckModelSetup)** - creates an instance of your deck
+- **getSelectedDeckName()\***
+  -- gets the name of the currently selected deck
+- **getDeckList()\***
+  -- gets a list of the names and IDs of each deck
+- **getModelList()\***
+  -- gets a list of the names and IDs of each model
+- **getFieldList(modelName, modelId)\***
+  -- gets a list of all field names for a specific model
+  -- only one of `modelName` or `modelId` is required
 
-## deckModelSetup object
+- new AnkiDroid(setupOptions) - creates an instance of your deck
+
+## setupOptions object
+
+| Params          |       Type       | Required                             | Description                                                |
+| --------------- | :--------------: | ------------------------------------ | ---------------------------------------------------------- |
+| deckProperties  |      object      | optional if `deckId` exists          | properties required to search by name / create a new deck  |
+| deckId          | string \| number | optional if `deckProperties` exists  | Id of the deck to create / add notes to                    |
+| modelProperties |      object      | optional if `modelId` exists         | Id of the model used / created for notes                   |
+| modelId         | string \| number | optional if `modelProperties` exists | properties required to search by name / create a new model |
+
+## deckProperties object
+
+| Params    |  Type  | Default  | Description                                                                                        |
+| --------- | :----: | -------- | -------------------------------------------------------------------------------------------------- |
+| reference | string | REQUIRED | Deck reference name to store locally in SharedPreferences                                          |
+| deckName  | string | REQUIRED | Name of the deck to create / add notes to **(Will first search for deck by name before creating)** |
+
+## modelProperties object
 
 | Params           |   Type   | Default  | Description                                                                                                               |
 | ---------------- | :------: | -------- | ------------------------------------------------------------------------------------------------------------------------- |
-| dbDeckReference  |  string  | REQUIRED | Deck reference name to store locally in SharedPreferences                                                                 |
+| modelName        |  string  | REQUIRED | Name of the model used / created for notes **(Will first search for deck by name before creating)**                       |
 | dbModelReference |  string  | REQUIRED | Model reference name to store locally in SharedPreferences                                                                |
 | modelFields      | string[] | REQUIRED | The names of the fields used for the note's model during creation / use _(modelFields.length === valueFields.length)_     |
 | cardNames        | string[] | REQUIRED | Names for the front/back sides of the model _(cardNames.length === 2)_                                                    |
 | questionFormat   | string[] | REQUIRED | Question formatting for each direction of _(questionFormat.length === 2)_ **variable names MUST match modelFields names** |
 | answerFormat     | string[] | REQUIRED | Answer formatting for each direction of _(answerFormat.length === 2)_ **variable names MUST match modelFields names**     |
-| modelName        |  string  | REQUIRED | Name of the model used / created for notes                                                                                |
-| deckName         |  string  | REQUIRED | Name of the deck to create / add notes to                                                                                 |
 | tags             | string[] | null     | Tags to attach to added notes                                                                                             |
 | css              |  string  | null     | css styling information to be shared across all cards. _(null for default CSS)_                                           |
 
-## The Deck Class
+## The AnkiDroid Class
 
-- **addNote(valueFields, permissionRationale)**
+- **addNote(valueFields, modelFields)**
   -- valueFields (see below)
-  -- permissionRationale (optional)
+  -- modelFields (see below)
 
-  | Param       |   Type   | Description                                                                                  |
-  | ----------- | :------: | -------------------------------------------------------------------------------------------- |
-  | valueFields | string[] | The values for the corresponding model fields. \_(valueFields.length === modelFields.length) |
+  | Param       |   Type   | Description                                                                                                          |
+  | ----------- | :------: | -------------------------------------------------------------------------------------------------------------------- |
+  | valueFields | string[] | The values for the corresponding model fields. **(valueFields.length === modelFields.length)**                       |
+  | modelFields | string[] | The model fields that correspond to the model that will be used. **(values must match exactly with the model used)** |
 
 ## Gotchas
 
@@ -123,27 +148,27 @@ AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
 ///////////////////////////////////
 
 // Name of deck which will be created in AnkiDroid
-const deckName = "API Sample Name";
+const deckName = 'API Sample Name';
 // Name of model which will be created in AnkiDroid (can be any string)
-const modelName = "Sample Model Name";
+const modelName = 'Sample Model Name';
 // Used to save a reference to this deck in the SharedPreferences (can be any string)
-const dbDeckReference = "com.your.app.decks";
+const dbDeckReference = 'com.your.app.decks';
 // Used to save a reference to this model in the SharedPreferences (can be any string)
-const dbModelReference = "com.your.app.models";
+const dbModelReference = 'com.your.app.models';
 // Optional space separated list of tags to add to every note
-const tags = ["API_Sample", "my", "tags"];
+const tags = ['API_Sample', 'my', 'tags'];
 // List of field names that will be used in AnkiDroid model
 const modelFields = [
-  "Word",
-  "Translation",
-  "Meaning",
-  "Grammar",
-  "Idiom",
-  "IdiomTranslation",
-  "IdiomMeaning"
+  'Word',
+  'Translation',
+  'Meaning',
+  'Grammar',
+  'Idiom',
+  'IdiomTranslation',
+  'IdiomMeaning',
 ];
 // List of card names that will be used in AnkiDroid (one for each direction of learning)
-const cardNames = ["Korean>English", "English>Korean"];
+const cardNames = ['Korean>English', 'English>Korean'];
 // CSS to share between all the cards (optional).
 const css = `.card {
   font-family: NotoSansKR;
@@ -156,9 +181,9 @@ const css = `.card {
 .big { font-size: 48px; }
 .small { font-size: 18px;}`;
 // Template for the question of each card
-const questionFmt1 = "<div class=big>{{Word}}</div><br>{{Grammar}}";
+const questionFmt1 = '<div class=big>{{Word}}</div><br>{{Grammar}}';
 const questionFmt2 =
-  "{{Meaning}}<br><br><div class=small>{{Grammar}}<br><br>({{Idiom}})</div>";
+  '{{Meaning}}<br><br><div class=small>{{Grammar}}<br><br>({{Idiom}})</div>';
 const questionFormat = [questionFmt1, questionFmt2];
 // Template for the answer (this example is identical for both sides)
 const answerFmt1 = `<div class=big>{{Translation}}</div><br>{{Meaning}}
@@ -174,46 +199,59 @@ const answerFormat = [answerFmt1, answerFmt1];
 // ADDING NOTES //
 //////////////////
 
-const deckModelSetup = {
-  deckName,
-  modelName,
-  dbDeckReference,
-  dbModelReference,
-  modelFields,
+const deckProperties = {
+  name: deckName,
+  reference: dbDeckReference,
+};
+const modelProperties = {
+  name: modelName,
+  reference: dbModelReference,
+  fields: modelFields,
   tags,
   cardNames,
   questionFormat,
   answerFormat,
-  css
+  css,
 };
 
 const valueFields = [
-  "사랑",
-  "love",
-  "The attitude of sincerely caring about someone out of affection.",
-  "noun",
-  "사랑을 속삭이다",
-  "whisper love",
-  "For lovers to have a conversation of love."
+  '사랑',
+  'love',
+  'The attitude of sincerely caring about someone out of affection.',
+  'noun',
+  '사랑을 속삭이다',
+  'whisper love',
+  'For lovers to have a conversation of love.',
 ];
 
-const myAnkiDeck = new AnkiDroid.Deck(deckModelSetup);
+const settings = {
+  modelId: undefined,
+  modelProperties: modelProperties,
+  deckId: undefined,
+  deckProperties: deckProperties,
+};
 
-myAnkiDeck.addNote(valueFields);
+const myAnkiDeck = new AnkiDroid(settings);
+
+myAnkiDeck.addNote(valueFields, modelFields);
 // returns a promise that returns the added note ID
 
 const newNote = [
-  "여행사",
-  "travel agency",
-  "A company that offers an array of services for travel, including transportation, accomodaton, tour guide, etc.",
-  "noun",
-  "",
-  "",
-  ""
+  '여행사',
+  'travel agency',
+  'A company that offers an array of services for travel, including transportation, accomodaton, tour guide, etc.',
+  'noun',
+  '',
+  '',
+  '',
 ];
 
-myAnkiDeck.addNote(newNote);
+myAnkiDeck.addNote(newNote, modelFields);
 ```
+
+## Demo App
+
+- A demo app is in the example folder. Just cd into the demo app directory and `npm install && npm run android`
 
 ## Card setup / References
 
@@ -222,10 +260,15 @@ myAnkiDeck.addNote(newNote);
 
 ## Todo
 
-- [ ] add to default deck
 - [ ] add basic card
 - [ ] AnkiDroid intent API
 - [ ] add multiple notes at once
+- [x] ~~add to default deck~~
+- [x] ~~create by model ID / deck ID~~
+- [x] ~~get selected deck~~
+- [x] ~~get model field values~~
+- [x] ~~get model list~~
+- [x] ~~get deck list~~
 - [x] ~~detailed examples~~
 - [x] ~~typescript~~
 

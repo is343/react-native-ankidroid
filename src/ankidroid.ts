@@ -196,8 +196,8 @@ export class Deck {
    * Create notes using the created deck model
    * @param note length must match the settings used when creating the deck
    * @param permissionRational optional `PermissionsAndroid` message to show when requesting permissions
+   * @return  a tuple of any errors and the result `[error, result]`
    * @return the added note ID
-   * @return error string if something goes wrong
    */
   async addNote(
     valueFields: string[],

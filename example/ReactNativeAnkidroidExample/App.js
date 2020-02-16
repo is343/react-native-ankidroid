@@ -110,6 +110,7 @@ const App = () => {
   const [hasPermission, setHasPermission] = React.useState(false);
   const [decks, setDecks] = React.useState([]);
   const [showDecks, setShowDecks] = React.useState(false);
+  const [deckName, setDeckName] = React.useState('');
 
   const getDeckList = async () => {
     const [error, deckList] = await AnkiDroid.getDeckList();
@@ -118,11 +119,20 @@ const App = () => {
     }
   }
 
-  React.useEffect(async () => {
+  const getSelectedDeckName = async () => {
+    const [error, selectedDeckName] = await AnkiDroid.getSelectedDeckName();
+    if (selectedDeckName) {
+      setDeckName(selectedDeckName)
+    }
+  }
+
+  const getApiStatus = async () => {
     setApiAvailable(await AnkiDroid.isApiAvailable());
+  }
+
+  const getPermissionStatus = async () => {
     setHasPermission(await AnkiDroid.checkPermission());
-    getDeckList();
-  }, []);
+  }
 
   const requestPermission = async () => {
     const [error, result] = await AnkiDroid.requestPermission();
@@ -130,6 +140,19 @@ const App = () => {
       setHasPermission(result === 'granted');
     }
   }
+
+  React.useEffect(() => {
+    getApiStatus();
+    getPermissionStatus();
+    getDeckList();
+    getSelectedDeckName();
+  }, []);
+
+  React.useEffect(() => {
+    if (hasPermission) {
+      getDeckList();
+    }
+  }, [hasPermission]);
 
   const handleShowDeckPress = () => {
     if (!decks.length) {
@@ -166,12 +189,22 @@ const App = () => {
                 onPress={requestPermission}
                 title="Request Permission"
               />
+              <Text style={styles.sectionTitle}>{`Selected deck name:`}</Text>
+              <Text style={styles.sectionDescription}>{deckName}</Text>
             </View>
             <View style={styles.sectionContainer}>
               <Text style={styles.sectionTitle}>{`Existing decks:`}</Text>
               <Button
                 onPress={handleShowDeckPress}
                 title={`${showDecks ? 'Hide' : 'Show'} Deck List`}
+              />
+              {showDecks && renderDeckList()}
+            </View>
+            <View style={styles.sectionContainer}>
+              <Text style={styles.sectionTitle}>{`Existing models:`}</Text>
+              <Button
+                onPress={handleShowDeckPress}
+                title={`${showDecks ? 'Hide' : 'Show'} Model List`}
               />
               {showDecks && renderDeckList()}
             </View>

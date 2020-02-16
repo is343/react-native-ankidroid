@@ -69,6 +69,19 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
   }
 
   /**
+   * Returns the name of the currently selected deck
+   */
+  @ReactMethod
+  public void getSelectedDeckName(Promise promise) {
+    try {
+      String deckName = getApi().getSelectedDeckName();
+      promise.resolve(deckName);
+    } catch (Exception e) {
+      promise.reject(e.toString());
+    }
+  }
+
+  /**
    * Check if the AnkiDroid API is available on the phone
    * @return true if the API is available to use
    */

@@ -78,7 +78,7 @@ export async function checkPermission(): Promise<boolean> {
 /**
  * Request AnkiDroid API permissions
  * @param rationale optional `PermissionsAndroid` message to show when requesting permissions
- * @param returns optional `PermissionsAndroid` message to show when requesting permissions
+ * @return  a tuple of any errors and the result `[error, result]`
  */
 export async function requestPermission(
   rationale: Rationale = null,
@@ -105,9 +105,9 @@ export async function requestPermission(
 }
 
 /**
- * Request AnkiDroid API permissions
+ * Gets the ID and name for all decks
  * @param rationale optional `PermissionsAndroid` message to show when requesting permissions
- * @param returns optional `PermissionsAndroid` message to show when requesting permissions
+ * @return  a tuple of any errors and the result `[error, result]`
  */
 export async function getDeckList(
   rationale: Rationale = null,
@@ -119,6 +119,27 @@ export async function getDeckList(
   try {
     const decks: DeckInfo[] = await AnkiDroidModule.getDeckList();
     return [null, decks];
+  } catch (error) {
+    console.warn(MODULE_NAME, error.toString());
+    return [new Error(Errors.UNKNOWN_ERROR)];
+  }
+}
+
+/**
+ * Gets the name of the currently selected deck
+ * @param rationale optional `PermissionsAndroid` message to show when requesting permissions
+ * @return  a tuple of any errors and the result `[error, result]`
+ */
+export async function getSelectedDeckName(
+  rationale: Rationale = null,
+): Promise<Result<string>> {
+  if (!androidCheck()) return [new Error(Errors.OS_ERROR)];
+  const permissionStatus = await requestPermission(rationale);
+  if (permissionStatus[1] !== 'granted')
+    return [new Error(Errors.PERMISSION_ERROR)];
+  try {
+    const deckName: string = await AnkiDroidModule.getSelectedDeckName();
+    return [null, deckName];
   } catch (error) {
     console.warn(MODULE_NAME, error.toString());
     return [new Error(Errors.UNKNOWN_ERROR)];

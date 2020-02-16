@@ -65,11 +65,13 @@ const answerFormat = [answerFmt1, answerFmt1];
 //////////////////
 
 const deckModelSetup = {
-  deckName,
-  modelName,
-  dbDeckReference,
-  dbModelReference,
-  modelFields,
+  name: deckName,
+  reference: dbDeckReference,
+};
+const modelProperties = {
+  name: modelName,
+  reference: dbModelReference,
+  fields: modelFields,
   tags,
   cardNames,
   questionFormat,
@@ -87,22 +89,14 @@ const valueFields = [
   "For lovers to have a conversation of love."
 ];
 
-// const myAnkiDeck = new AnkiDroid.Deck(deckModelSetup);
+const settings = {
+  modelId: undefined,
+  modelProperties: modelProperties,
+  deckId: undefined,
+  deckProperties: deckModelSetup
+}
 
-// myAnkiDeck.addNote(valueFields);
-// // returns a promise that returns the added note ID
-
-const newNote = [
-  "여행사",
-  "travel agency",
-  "A company that offers an array of services for travel, including transportation, accomodaton, tour guide, etc.",
-  "noun",
-  "",
-  "",
-  ""
-];
-
-// myAnkiDeck.addNote(newNote);
+const myAnkiDeck = new AnkiDroid(settings);
 
 
 const App = () => {
@@ -115,6 +109,15 @@ const App = () => {
   const [showModels, setShowModels] = React.useState(false);
   const [deckName, setDeckName] = React.useState('');
   const [modelIdentifier, setModelIdentifier] = React.useState('');
+  const [addedNoteId, setAddedNoteId] = React.useState('');
+
+
+  const createNote = async () => {
+    const [error, noteId] = await myAnkiDeck.addNote(valueFields, modelFields);
+    if (noteId) {
+      setAddedNoteId(noteId)
+    }
+  }
 
   const getDeckList = async () => {
     const [error, deckList] = await AnkiDroid.getDeckList();
@@ -130,13 +133,13 @@ const App = () => {
     }
   }
 
-  const getFieldList = async (identifier) => {
+  const getFieldList = async (identifier = '') => {
     let modelName = null;
     let modelId = null;
-    if (isNaN(Number(identifier))) {
-      modelName = identifier;
+    if (isNaN(Number(identifier.trim()))) {
+      modelName = identifier.trim();
     } else {
-      modelId = identifier;
+      modelId = identifier.trim();
     }
     const [error, fieldList] = await AnkiDroid.getFieldList(modelName, modelId);
     if (fieldList) {
@@ -178,7 +181,6 @@ const App = () => {
       getDeckList();
       getModelList();
       getSelectedDeckName();
-      getFieldList();
     }
   }, [hasPermission]);
 
@@ -258,7 +260,15 @@ const App = () => {
                 onPress={() => getFieldList(modelIdentifier)}
                 title={'search'}
               />
-              {!!fields && renderFieldList(fields)}
+              {!!fields.length && renderFieldList(fields)}
+            </View>
+            <View style={styles.sectionContainer}>
+              <Text style={styles.sectionTitle}>{`Created test note ID:`}</Text>
+              {<Text style={styles.sectionDescription}>{addedNoteId}</Text>}
+              <Button
+                onPress={createNote}
+                title={'Add note'}
+              />
             </View>
           </View>
         </ScrollView>

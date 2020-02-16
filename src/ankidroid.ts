@@ -25,16 +25,16 @@ const { AnkiDroidModule } = NativeModules;
  * Create deck, model, and references. Once set up, notes can be created.
  *  All newly created notes must have the correct matching info.
  * - only one needed of (deckId or deckPoperties) and (modelId or modelProperties)
- * @constructor modelSettings object with the below values
+ * @constructor settings object with the below values
  * - deckId: required if `deckProperties` missing
  * - deckProperties: required if `deckId` missing
  * - modelId: required if `modelProperties` missing
  * - modelProperties: required if `modelId` missing
  */
 export class AnkiDroid {
-  modelSettings: Settings;
-  constructor(modelSettings: Settings) {
-    this.modelSettings = modelSettings;
+  settings: Settings;
+  constructor(settings: Settings) {
+    this.settings = settings;
   }
 
   ////////////
@@ -450,7 +450,7 @@ export class AnkiDroid {
   public async addNote(
     valueFields: string[],
     modelFields: string[],
-  ): Promise<Result<number>> {
+  ): Promise<Result<string>> {
     if (!AnkiDroid.androidCheck()) return [new Error(Errors.OS_ERROR)];
     const permissionStatus = await AnkiDroid.checkPermission();
     if (!permissionStatus) return [new Error(Errors.PERMISSION_ERROR)];
@@ -463,12 +463,8 @@ export class AnkiDroid {
 
     let deckPropertiesToUse = {} as NewDeckProperties;
     let modelPropertiesToUse = {} as NewModelProperties;
-    const {
-      deckId,
-      deckProperties,
-      modelId,
-      modelProperties,
-    } = this.modelSettings;
+    let { deckId, modelId } = this.settings;
+    const { deckProperties, modelProperties } = this.settings;
 
     if (!deckId && !deckProperties) {
       return [new Error(ErrorText.DECK_INFO_MISSING)];
@@ -476,13 +472,22 @@ export class AnkiDroid {
       const errorCheckResults = this.checkForPropertyErrors(deckProperties);
       if (errorCheckResults) return [new Error(errorCheckResults)];
       deckPropertiesToUse = deckProperties;
+    } else if (deckId) {
+      if (typeof deckId === 'number') {
+        deckId = deckId.toString();
+      }
     }
+
     if (!modelId && !modelProperties) {
-      return [new Error(ErrorText.DECK_INFO_MISSING)];
+      return [new Error(ErrorText.MODEL_INFO_MISSING)];
     } else if (!modelId) {
       const errorCheckResults = this.checkForPropertyErrors(modelProperties);
       if (errorCheckResults) return [new Error(errorCheckResults)];
       modelPropertiesToUse = modelProperties;
+    } else if (modelId) {
+      if (typeof modelId === 'number') {
+        modelId = modelId.toString();
+      }
     }
     // destructure with default values
     const {
@@ -533,7 +538,7 @@ export class AnkiDroid {
       if (!addedNoteId || isNaN(addedNoteIdInt)) {
         console.warn(MODULE_NAME, addedNoteId);
         // return the appropriate error
-        return Errors[addedNoteId];
+        return [new Error(Errors[addedNoteId])];
       }
       return [null, addedNoteIdInt];
     } catch (error) {

@@ -85,15 +85,24 @@ AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
   -- rationale (optional)
 - **getSelectedDeckName()\***
   -- gets the name of the currently selected deck
+  -- returns a response tuple
 - **getDeckList()\***
   -- gets a list of the names and IDs of each deck
+  -- returns a response tuple
 - **getModelList()\***
   -- gets a list of the names and IDs of each model
+  -- returns a response tuple
 - **getFieldList(modelName, modelId)\***
   -- gets a list of all field names for a specific model
   -- only one of `modelName` or `modelId` is required
+  -- returns a response tuple
 
 - new AnkiDroid(setupOptions) - creates an instance of your deck
+
+## The Response tuple
+
+- some methods will return a tuple in the form of `[error, responseData]`
+  -- when there is no error the first value in the tuple will be `null`. The data we want to retrieve will always be on the second value
 
 ## setupOptions object
 

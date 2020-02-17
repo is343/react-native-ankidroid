@@ -118,14 +118,14 @@ AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
 | Params    |  Type  | Default  | Description                                                                                        |
 | --------- | :----: | -------- | -------------------------------------------------------------------------------------------------- |
 | reference | string | REQUIRED | Deck reference name to store locally in SharedPreferences                                          |
-| deckName  | string | REQUIRED | Name of the deck to create / add notes to **(Will first search for deck by name before creating)** |
+| name  | string | REQUIRED | Name of the deck to create / add notes to **(Will first search for deck by name before creating)** |
 
 ## modelProperties object
 
 | Params           |   Type   | Default  | Description                                                                                                               |
 | ---------------- | :------: | -------- | ------------------------------------------------------------------------------------------------------------------------- |
-| modelName        |  string  | REQUIRED | Name of the model used / created for notes **(Will first search for deck by name before creating)**                       |
-| dbModelReference |  string  | REQUIRED | Model reference name to store locally in SharedPreferences                                                                |
+| name        |  string  | REQUIRED | Name of the model used / created for notes **(Will first search for deck by name before creating)**                       |
+| reference |  string  | REQUIRED | Model reference name to store locally in SharedPreferences                                                                |
 | modelFields      | string[] | REQUIRED | The names of the fields used for the note's model during creation / use _(modelFields.length === valueFields.length)_     |
 | cardNames        | string[] | REQUIRED | Names for the front/back sides of the model _(cardNames.length === 2)_                                                    |
 | questionFormat   | string[] | REQUIRED | Question formatting for each direction of _(questionFormat.length === 2)_ **variable names MUST match modelFields names** |
@@ -136,13 +136,11 @@ AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
 ## The AnkiDroid Class
 
 - **addNote(valueFields, modelFields)**
-  -- valueFields (see below)
-  -- modelFields (see below)
 
   | Param       |   Type   | Description                                                                                                          |
   | ----------- | :------: | -------------------------------------------------------------------------------------------------------------------- |
   | valueFields | string[] | The values for the corresponding model fields. **(valueFields.length === modelFields.length)**                       |
-  | modelFields | string[] | The model fields that correspond to the model that will be used. **(values must match exactly with the model used)** |
+  | modelFields | string[] | The model fields that correspond to the model that will be used. **(values must exactly match the model used)** |
 
 ## Gotchas
 

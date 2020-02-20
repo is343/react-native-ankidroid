@@ -102,15 +102,15 @@ AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
 ## The Response tuple
 
 - some methods will return a tuple in the form of `[error, responseData]`
-  -- when there is no error the first value in the tuple will be `null`. The data we want to retrieve will always be on the second value
+  -- when there is no error the first value in the tuple will be `null`. The data we want to retrieve will always be in the second value
 
 ## setupOptions object
 
 | Params          |       Type       | Required                             | Description                                                |
 | --------------- | :--------------: | ------------------------------------ | ---------------------------------------------------------- |
 | deckProperties  |      object      | optional if `deckId` exists          | properties required to search by name / create a new deck  |
-| deckId          | string \| number | optional if `deckProperties` exists  | Id of the deck to create / add notes to                    |
-| modelProperties |      object      | optional if `modelId` exists         | Id of the model used / created for notes                   |
+| deckId          | string \| number | optional if `deckProperties` exists  | Id of the existing deck to add notes to                    |
+| modelProperties |      object      | optional if `modelId` exists         | Id of the existing model to add notes to                   |
 | modelId         | string \| number | optional if `modelProperties` exists | properties required to search by name / create a new model |
 
 ## deckProperties object

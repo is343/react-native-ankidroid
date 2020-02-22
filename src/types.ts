@@ -39,6 +39,9 @@ export enum Errors {
 /** Result tuple for anything that may return an error */
 export type Result<T> = [Error | null, T?];
 
+export type Properties = NewDeckProperties | NewModelProperties;
+export type ID = string | number;
+
 export interface NewDeckProperties {
   dbReference: string;
   name: string;
@@ -59,9 +62,9 @@ export interface NewModelProperties extends NewDeckProperties {
  * the data object for setting up the deck
  */
 export interface Settings {
-  deckId?: number | string;
+  deckId?: ID;
   deckProperties?: NewDeckProperties;
-  modelId?: number | string;
+  modelId?: ID;
   modelProperties?: NewModelProperties;
 }
 export interface Note extends Settings {

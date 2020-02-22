@@ -9,12 +9,14 @@ import {
 import {
   Errors,
   ErrorText,
+  ID,
   Indentifier,
   MODULE_NAME,
   NewDeckProperties,
   NewModelProperties,
   Note,
   NoteKeys,
+  Properties,
   Result,
   Settings,
 } from './types';
@@ -425,6 +427,28 @@ export class AnkiDroid {
     );
   }
   /**
+   * gets valid id and property values
+   * @param id deckId | modelId
+   * @param properties deckProperties | modelProperties
+   * @returns `Error` if not valid
+   */
+  private getValidIdAndProperties(
+    id?: ID,
+    properties?: Properties,
+  ): Error | [ID | undefined, Properties | undefined] {
+    if (!id && !properties) {
+      return new Error(ErrorText.DECK_INFO_MISSING);
+    } else if (!id) {
+      const errorCheckResults = this.checkForPropertyErrors(properties);
+      if (errorCheckResults) return new Error(errorCheckResults);
+    } else if (id) {
+      if (typeof id === 'number') {
+        id = id.toString();
+      }
+    }
+    return [id, properties];
+  }
+  /**
    * Checks if a valid string or array of strings
    * @param itemToCheck
    * @returns `true` if valid
@@ -466,29 +490,27 @@ export class AnkiDroid {
     let { deckId, modelId } = this.settings;
     const { deckProperties, modelProperties } = this.settings;
 
-    if (!deckId && !deckProperties) {
-      return [new Error(ErrorText.DECK_INFO_MISSING)];
-    } else if (!deckId) {
-      const errorCheckResults = this.checkForPropertyErrors(deckProperties);
-      if (errorCheckResults) return [new Error(errorCheckResults)];
-      deckPropertiesToUse = deckProperties;
-    } else if (deckId) {
-      if (typeof deckId === 'number') {
-        deckId = deckId.toString();
-      }
+    const deckIdAndProperties = this.getValidIdAndProperties(
+      deckId,
+      deckProperties,
+    );
+    if (deckIdAndProperties instanceof Error) {
+      return [deckIdAndProperties];
+    } else {
+      deckId = deckIdAndProperties[0];
+      deckPropertiesToUse = deckIdAndProperties[1];
+    }
+    const modelIdAndProperties = this.getValidIdAndProperties(
+      modelId,
+      modelProperties,
+    );
+    if (modelIdAndProperties instanceof Error) {
+      return [modelIdAndProperties];
+    } else {
+      modelId = modelIdAndProperties[0];
+      modelPropertiesToUse = modelIdAndProperties[1] as NewModelProperties;
     }
 
-    if (!modelId && !modelProperties) {
-      return [new Error(ErrorText.MODEL_INFO_MISSING)];
-    } else if (!modelId) {
-      const errorCheckResults = this.checkForPropertyErrors(modelProperties);
-      if (errorCheckResults) return [new Error(errorCheckResults)];
-      modelPropertiesToUse = modelProperties;
-    } else if (modelId) {
-      if (typeof modelId === 'number') {
-        modelId = modelId.toString();
-      }
-    }
     // destructure with default values
     const {
       fields,

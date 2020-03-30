@@ -27,6 +27,8 @@ const { AnkiDroidModule } = NativeModules;
  * Create deck, model, and references. Once set up, notes can be created.
  *  All newly created notes must have the correct matching info.
  * - only one needed of (deckId or deckPoperties) and (modelId or modelProperties)
+ * - Will retry once if there is an error. Sometimes the `AnkiDroid` native api
+ * will return an error the first time but will work fine on the second attempt
  * @constructor settings object with the below values
  * - deckId: required if `deckProperties` missing
  * - deckProperties: required if `deckId` missing
@@ -112,7 +114,7 @@ export class AnkiDroid {
   /**
    * Request AnkiDroid API permissions
    * @param rationale optional `PermissionsAndroid` message to show when requesting permissions
-   * @return  a tuple of any errors and the result `[error, result]`
+   * @return a tuple of any errors and the result `[error, result]`
    */
   static async requestPermission(
     rationale: Rationale = null,
@@ -140,9 +142,20 @@ export class AnkiDroid {
 
   /**
    * Gets the ID and name for all decks
-   * @return  a tuple of any errors and the result `[error, result]`
+   * @return a tuple of any errors and the result `[error, result]`
    */
   static async getDeckList(): Promise<Result<Indentifier[]>> {
+    const [error, response] = await this._getDeckList();
+    if (error) {
+      return await this._getDeckList();
+    }
+    return [error, response];
+  }
+
+  /**
+   * Private method with the logic
+   */
+  private static async _getDeckList(): Promise<Result<Indentifier[]>> {
     if (!AnkiDroid.androidCheck()) return [new Error(Errors.OS_ERROR)];
     const permissionStatus = await AnkiDroid.checkPermission();
     if (!permissionStatus) return [new Error(Errors.PERMISSION_ERROR)];
@@ -154,12 +167,22 @@ export class AnkiDroid {
       return [new Error(Errors.UNKNOWN_ERROR)];
     }
   }
-
   /**
    * Gets the ID and name for all models
-   * @return  a tuple of any errors and the result `[error, result]`
+   * @return a tuple of any errors and the result `[error, result]`
    */
   static async getModelList(): Promise<Result<Indentifier[]>> {
+    const [error, response] = await this._getModelList();
+    if (error) {
+      return await this._getModelList();
+    }
+    return [error, response];
+  }
+
+  /**
+   * Private method with the logic
+   */
+  private static async _getModelList(): Promise<Result<Indentifier[]>> {
     if (!AnkiDroid.androidCheck()) return [new Error(Errors.OS_ERROR)];
     const permissionStatus = await AnkiDroid.checkPermission();
     if (!permissionStatus) return [new Error(Errors.PERMISSION_ERROR)];
@@ -176,9 +199,23 @@ export class AnkiDroid {
    * Gets all field names for a specific model
    * @param modelName required if `modelId` is not used
    * @param modelId required if `modelName` is not used
-   * @return  a tuple of any errors and the result `[error, result]`
+   * @return a tuple of any errors and the result `[error, result]`
    */
   static async getFieldList(
+    modelName?: string,
+    modelId?: number | string,
+  ): Promise<Result<string[]>> {
+    const [error, response] = await this._getFieldList(modelName, modelId);
+    if (error) {
+      return await this._getFieldList(modelName, modelId);
+    }
+    return [error, response];
+  }
+
+  /**
+   * Private method with the logic
+   */
+  private static async _getFieldList(
     modelName?: string,
     modelId?: number | string,
   ): Promise<Result<string[]>> {
@@ -203,9 +240,20 @@ export class AnkiDroid {
 
   /**
    * Gets the name of the currently selected deck
-   * @return  a tuple of any errors and the result `[error, result]`
+   * @return a tuple of any errors and the result `[error, result]`
    */
   static async getSelectedDeckName(): Promise<Result<string>> {
+    const [error, response] = await this._getSelectedDeckName();
+    if (error) {
+      return await this._getSelectedDeckName();
+    }
+    return [error, response];
+  }
+
+  /**
+   * Private method with the logic
+   */
+  private static async _getSelectedDeckName(): Promise<Result<string>> {
     if (!AnkiDroid.androidCheck()) return [new Error(Errors.OS_ERROR)];
     const permissionStatus = await AnkiDroid.checkPermission();
     if (!permissionStatus) return [new Error(Errors.PERMISSION_ERROR)];
@@ -461,17 +509,10 @@ export class AnkiDroid {
     }
   }
 
-  ////////////
-  // PUBLIC //
-  ////////////
-
   /**
-   * Create notes using the created deck model
-   * @param note length must match the settings used when creating the deck
-   * @return  a tuple of any errors and the result `[error, result]`
-   * @return the added note ID
+   * Private method with the logic
    */
-  public async addNote(
+  private async _addNote(
     valueFields: string[],
     modelFields: string[],
   ): Promise<Result<string>> {
@@ -567,5 +608,27 @@ export class AnkiDroid {
       console.warn(MODULE_NAME, error.toString());
       return [new Error(Errors.UNKNOWN_ERROR)];
     }
+  }
+
+  ////////////
+  // PUBLIC //
+  ////////////
+
+  /**
+   * Create notes using the created deck model
+   * @param valueFields length must match `modelFields`
+   * @param modelFields length must match the settings used when creating the deck
+   * @return a tuple of any errors and the result `[error, result]`
+   * @return the added note ID
+   */
+  public async addNote(
+    valueFields: string[],
+    modelFields: string[],
+  ): Promise<Result<string>> {
+    const [error, response] = await this._addNote(valueFields, modelFields);
+    if (error) {
+      return await this._addNote(valueFields, modelFields);
+    }
+    return [error, response];
   }
 }

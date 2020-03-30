@@ -145,9 +145,9 @@ export class AnkiDroid {
    * @return a tuple of any errors and the result `[error, result]`
    */
   static async getDeckList(): Promise<Result<Indentifier[]>> {
-    const [error, response] = await this._getDeckList();
+    const [error, response] = await AnkiDroid._getDeckList();
     if (error) {
-      return await this._getDeckList();
+      return await AnkiDroid._getDeckList();
     }
     return [error, response];
   }
@@ -172,9 +172,9 @@ export class AnkiDroid {
    * @return a tuple of any errors and the result `[error, result]`
    */
   static async getModelList(): Promise<Result<Indentifier[]>> {
-    const [error, response] = await this._getModelList();
+    const [error, response] = await AnkiDroid._getModelList();
     if (error) {
-      return await this._getModelList();
+      return await AnkiDroid._getModelList();
     }
     return [error, response];
   }
@@ -205,9 +205,9 @@ export class AnkiDroid {
     modelName?: string,
     modelId?: number | string,
   ): Promise<Result<string[]>> {
-    const [error, response] = await this._getFieldList(modelName, modelId);
+    const [error, response] = await AnkiDroid._getFieldList(modelName, modelId);
     if (error) {
-      return await this._getFieldList(modelName, modelId);
+      return await AnkiDroid._getFieldList(modelName, modelId);
     }
     return [error, response];
   }
@@ -243,9 +243,9 @@ export class AnkiDroid {
    * @return a tuple of any errors and the result `[error, result]`
    */
   static async getSelectedDeckName(): Promise<Result<string>> {
-    const [error, response] = await this._getSelectedDeckName();
+    const [error, response] = await AnkiDroid._getSelectedDeckName();
     if (error) {
-      return await this._getSelectedDeckName();
+      return await AnkiDroid._getSelectedDeckName();
     }
     return [error, response];
   }

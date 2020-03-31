@@ -52,7 +52,7 @@ The library will be automatically linked **BUT step 4 of the manual installation
          android:name="com.yourpackage.name.MainApplication"
          android:label="@string/app_name"
          android:icon="@mipmap/ic_launcher"
-         android:allowBackup="false"
+         android:allowBackup="true"
          android:theme="@style/AppTheme"
          tools:replace="android:allowBackup" // <---- ADD HERE
          >

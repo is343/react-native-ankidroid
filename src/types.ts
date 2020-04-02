@@ -53,9 +53,9 @@ export interface NewModelProperties extends NewDeckProperties {
   questionFormat: string[];
   answerFormat: string[];
   /** `null` for no tags */
-  tags?: string[];
+  tags?: string[] | null;
   /** `null` for default CSS */
-  css?: string;
+  css?: string | null;
 }
 
 /**

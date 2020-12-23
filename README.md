@@ -1,3 +1,5 @@
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/P5P71KGZI)
+
 # react-native-ankidroid
 
 React Native wrapper for the AnkiDroid API
@@ -282,5 +284,3 @@ myAnkiDeck.addNote(newNote, modelFields);
 ## Contributions
 
 Pull requests welcome!
-
-[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/P5P71KGZI)

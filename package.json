@@ -1,6 +1,6 @@
 {
   "name": "react-native-ankidroid",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "A react native wrapper for the AnkiDroid API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,7 +18,8 @@
     "prepublishOnly": "npm test && npm run lint",
     "preversion": "npm run lint",
     "version": "npm run format && git add -A src",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "test": "echo \"No test specified\""
   },
   "keywords": [
     "react-native",
@@ -35,9 +36,6 @@
     "url": "git+https://github.com/is343/react-native-ankidroid.git"
   },
   "homepage": "https://github.com/is343/react-native-ankidroid/",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/@is343"
-  },
   "license": "MIT",
   "peerDependencies": {
     "react-native": "^0.41.2"

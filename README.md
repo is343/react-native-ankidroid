@@ -52,7 +52,7 @@ The library will be automatically linked **BUT step 4 of the manual installation
          android:name="com.yourpackage.name.MainApplication"
          android:label="@string/app_name"
          android:icon="@mipmap/ic_launcher"
-         android:allowBackup="false"
+         android:allowBackup="true"
          android:theme="@style/AppTheme"
          tools:replace="android:allowBackup" // <---- ADD HERE
          >
@@ -282,3 +282,5 @@ myAnkiDeck.addNote(newNote, modelFields);
 ## Contributions
 
 Pull requests welcome!
+
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/P5P71KGZI)

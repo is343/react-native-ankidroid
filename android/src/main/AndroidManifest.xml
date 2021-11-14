@@ -1,6 +1,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.is343.reactnativeankidroid">
-
+    <queries>
+        <package android:name="com.ichi2.anki" />
+    </queries>
 </manifest>
   

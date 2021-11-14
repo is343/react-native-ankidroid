@@ -31,5 +31,5 @@ repositories {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    implementation 'com.ichi2.anki:api:1.1.0alpha6'
+    implementation 'com.github.ankidroid:Anki-Android:api-v1.1.0'
 }

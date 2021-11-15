@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import android.util.SparseArray;
 import android.content.SharedPreferences;
+import android.net.Uri;
 
 import android.os.Build;
 import com.facebook.react.bridge.Promise;
@@ -54,6 +55,25 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
 
   public AddContentApi getApi() {
     return mApi;
+  }
+
+  /**
+   * Get the correctly formatted String for the media file to be placed in the desired field of a Card
+   * @param fileUri Uri for the file to be added
+   * @param preferredName String to add to start of filename (do not use a file extension)
+   * @param mimeType String indicating the mimeType of the media. Accepts "audio" or "image"
+   */
+  @ReactMethod
+  public void uploadMediaFromUri(String fileUri, String preferredName, String mimeType, Promise promise) {
+    Uri uri = Uri.parse(fileUri);
+    String formatMediaName = mApi.addMediaFromUri(uri, preferredName, mimeType);
+    
+    if (formatMediaName == null) {
+      promise.reject("Failed to upload the file. URI: " + fileUri + "; preferredName: " + preferredName + "; mimeType: " + mimeType);
+      return;
+    }
+
+    promise.resolve(formatMediaName);
   }
 
   /**

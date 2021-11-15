@@ -266,6 +266,62 @@ export class AnkiDroid {
     }
   }
 
+  /**
+   * Upload media from the URI and get the correctly formatted string for the
+   * media file to be placed in the desired field of a card
+   *
+   * Notes to consider:
+   * * The file URI should be prefixed with `file://`
+   * * Both AnkiDroid and your app should have the
+   * `android.permission.MANAGE_EXTERNAL_STORAGE` permission granted if you wish
+   * to upload the file from external storage
+   *
+   * @return a tuple of any errors and the result `[error, result]`
+   */
+   static async uploadMediaFromUri(
+    fileUri: string,
+    preferredName: string,
+    mimeType: string
+  ): Promise<Result<string>> {
+    const [error, response] = await AnkiDroid._uploadMediaFromUri(
+      fileUri,
+      preferredName,
+      mimeType
+    );
+    if (error) {
+      return await AnkiDroid._uploadMediaFromUri(
+        fileUri,
+        preferredName,
+        mimeType
+      );
+    }
+    return [error, response];
+  }
+
+  /**
+   * Private method with the logic
+   */
+  private static async _uploadMediaFromUri(
+    fileUri: string,
+    preferredName: string,
+    mimeType: string
+  ): Promise<Result<string>> {
+    if (!AnkiDroid.androidCheck()) return [new Error(Errors.OS_ERROR)];
+    const permissionStatus = await AnkiDroid.checkPermission();
+    if (!permissionStatus) return [new Error(Errors.PERMISSION_ERROR)];
+    try {
+      const formatMediaName: string = await AnkiDroidModule.uploadMediaFromUri(
+        fileUri,
+        preferredName,
+        mimeType
+      );
+      return [null, formatMediaName];
+    } catch (error) {
+      console.warn(MODULE_NAME, error.toString());
+      return [new Error(Errors.UNKNOWN_ERROR)];
+    }
+  }
+
   /////////////
   // PRIVATE //
   /////////////

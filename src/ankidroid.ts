@@ -287,13 +287,13 @@ export class AnkiDroid {
     const [error, response] = await AnkiDroid._uploadMediaFromUri(
       fileUri,
       preferredName,
-      mimeType
+      mimeType,
     );
     if (error) {
       return await AnkiDroid._uploadMediaFromUri(
         fileUri,
         preferredName,
-        mimeType
+        mimeType,
       );
     }
     return [error, response];
@@ -314,7 +314,7 @@ export class AnkiDroid {
       const formatMediaName: string = await AnkiDroidModule.uploadMediaFromUri(
         fileUri,
         preferredName,
-        mimeType
+        mimeType,
       );
       return [null, formatMediaName];
     } catch (error) {

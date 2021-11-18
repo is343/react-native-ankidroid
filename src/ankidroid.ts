@@ -11,6 +11,7 @@ import {
   ErrorText,
   ID,
   Indentifier,
+  MEDIA_MIME_TYPE,
   MODULE_NAME,
   NewDeckProperties,
   NewModelProperties,
@@ -61,8 +62,8 @@ export class AnkiDroid {
   /**
    * Get the AnkiDroid API permission name
    */
-  static async getPermissionName(): Promise<any> {
-    let permissionName;
+  static async getPermissionName(): Promise<Permission> {
+    let permissionName: Permission;
     try {
       permissionName = await AnkiDroidModule.getPermissionName();
     } catch (error) {
@@ -278,10 +279,10 @@ export class AnkiDroid {
    *
    * @return a tuple of any errors and the result `[error, result]`
    */
-   static async uploadMediaFromUri(
+  static async uploadMediaFromUri(
     fileUri: string,
     preferredName: string,
-    mimeType: string
+    mimeType: MEDIA_MIME_TYPE,
   ): Promise<Result<string>> {
     const [error, response] = await AnkiDroid._uploadMediaFromUri(
       fileUri,
@@ -304,7 +305,7 @@ export class AnkiDroid {
   private static async _uploadMediaFromUri(
     fileUri: string,
     preferredName: string,
-    mimeType: string
+    mimeType: MEDIA_MIME_TYPE,
   ): Promise<Result<string>> {
     if (!AnkiDroid.androidCheck()) return [new Error(Errors.OS_ERROR)];
     const permissionStatus = await AnkiDroid.checkPermission();

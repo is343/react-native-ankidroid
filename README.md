@@ -64,7 +64,7 @@ The library will be automatically linked **BUT step 4 of the manual installation
 
 ```
     Execution failed for task ':app:processDebugManifest'.
-    > Manifest merger failed : Attribute application@allowBackup value=(false) from AndroidManifest.xml:15:7-34 is also present at [com.ichi2.anki:api:1.1.0alpha6] AndroidManife
+    > Manifest merger failed : Attribute application@allowBackup value=(false) from AndroidManifest.xml:15:7-34 is also present at [com.github.ankidroid:Anki-Android:api-v1.1.0] AndroidManife
     st.xml:14:9-35 value=(true).
     Suggestion: add 'tools:replace="android:allowBackup"' to <application> element at AndroidManifest.xml:7:5-117 to override.
 ```
@@ -76,6 +76,8 @@ import AnkiDroid from 'react-native-ankidroid';
 
 await AnkiDroid.isApiAvailable();
 ```
+
+### Static Methods
 
 AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
 **\*(returns a Promise)**
@@ -98,8 +100,19 @@ AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
   -- gets a list of all field names for a specific model
   -- only one of `modelName` or `modelId` is required
   -- returns a response tuple
+- **uploadMediaFromUri(fileUri, preferredName, mimeType)\***
+  -- gets a list of all field names for a specific model
+  -- `fileUri`: the location of the media to upload
+  -- `preferredName`: the name that will be used to access the media in the card
+  -- `mimeType`: can be either `"audio"` or `"image"`
+  -- returns a response tuple
+  -- import media into notes with `<img src="myimage.jpg">` and `[sound:myaudio.mp3]`
+  -- official anki docs can be found [here](https://docs.ankiweb.net/importing.html?highlight=media#importing-media)
+  -- Both AnkiDroid and your app require the `android.permission.MANAGE_EXTERNAL_STORAGE` permission granted if you intend to upload a file from external storage
 
-- new AnkiDroid(setupOptions) - creates an instance of your deck
+### Creating a class instance
+
+- `new AnkiDroid(setupOptions)` - creates an instance of your deck
 
 ## The Response tuple
 
@@ -120,28 +133,28 @@ AnkiDroid.**\_\_\_\_\_\_\_\_\_\_\_\_**
 | Params    |  Type  | Default  | Description                                                                                        |
 | --------- | :----: | -------- | -------------------------------------------------------------------------------------------------- |
 | reference | string | REQUIRED | Deck reference name to store locally in SharedPreferences                                          |
-| name  | string | REQUIRED | Name of the deck to create / add notes to **(Will first search for deck by name before creating)** |
+| name      | string | REQUIRED | Name of the deck to create / add notes to **(Will first search for deck by name before creating)** |
 
 ## modelProperties object
 
-| Params           |   Type   | Default  | Description                                                                                                               |
-| ---------------- | :------: | -------- | ------------------------------------------------------------------------------------------------------------------------- |
-| name        |  string  | REQUIRED | Name of the model used / created for notes **(Will first search for deck by name before creating)**                       |
-| reference |  string  | REQUIRED | Model reference name to store locally in SharedPreferences                                                                |
-| modelFields      | string[] | REQUIRED | The names of the fields used for the note's model during creation / use _(modelFields.length === valueFields.length)_     |
-| cardNames        | string[] | REQUIRED | Names for the front/back sides of the model _(cardNames.length === 2)_                                                    |
-| questionFormat   | string[] | REQUIRED | Question formatting for each direction of _(questionFormat.length === 2)_ **variable names MUST match modelFields names** |
-| answerFormat     | string[] | REQUIRED | Answer formatting for each direction of _(answerFormat.length === 2)_ **variable names MUST match modelFields names**     |
-| tags             | string[] | null     | Tags to attach to added notes                                                                                             |
-| css              |  string  | null     | css styling information to be shared across all cards. _(null for default CSS)_                                           |
+| Params         |   Type   | Default  | Description                                                                                                               |
+| -------------- | :------: | -------- | ------------------------------------------------------------------------------------------------------------------------- |
+| name           |  string  | REQUIRED | Name of the model used / created for notes **(Will first search for deck by name before creating)**                       |
+| reference      |  string  | REQUIRED | Model reference name to store locally in SharedPreferences                                                                |
+| modelFields    | string[] | REQUIRED | The names of the fields used for the note's model during creation / use _(modelFields.length === valueFields.length)_     |
+| cardNames      | string[] | REQUIRED | Names for the front/back sides of the model _(cardNames.length === 2)_                                                    |
+| questionFormat | string[] | REQUIRED | Question formatting for each direction of _(questionFormat.length === 2)_ **variable names MUST match modelFields names** |
+| answerFormat   | string[] | REQUIRED | Answer formatting for each direction of _(answerFormat.length === 2)_ **variable names MUST match modelFields names**     |
+| tags           | string[] | null     | Tags to attach to added notes                                                                                             |
+| css            |  string  | null     | css styling information to be shared across all cards. _(null for default CSS)_                                           |
 
-## The AnkiDroid Class
+## AnkiDroid Class Instances
 
 - **addNote(valueFields, modelFields)**
 
-  | Param       |   Type   | Description                                                                                                          |
-  | ----------- | :------: | -------------------------------------------------------------------------------------------------------------------- |
-  | valueFields | string[] | The values for the corresponding model fields. **(valueFields.length === modelFields.length)**                       |
+  | Param       |   Type   | Description                                                                                                     |
+  | ----------- | :------: | --------------------------------------------------------------------------------------------------------------- |
+  | valueFields | string[] | The values for the corresponding model fields. **(valueFields.length === modelFields.length)**                  |
   | modelFields | string[] | The model fields that correspond to the model that will be used. **(values must exactly match the model used)** |
 
 ## Gotchas
@@ -272,6 +285,7 @@ myAnkiDeck.addNote(newNote, modelFields);
 - [ ] add basic card
 - [ ] AnkiDroid intent API
 - [ ] add multiple notes at once
+- [x] ~~upload media~~
 - [x] ~~add to default deck~~
 - [x] ~~create by model ID / deck ID~~
 - [x] ~~get selected deck~~

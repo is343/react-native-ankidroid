@@ -41,6 +41,7 @@ export type Result<T> = [Error | null, T?];
 
 export type Properties = NewDeckProperties | NewModelProperties;
 export type ID = string | number;
+export type MEDIA_MIME_TYPE = 'audio' | 'image';
 
 export interface NewDeckProperties {
   dbReference: string;

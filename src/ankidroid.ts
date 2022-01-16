@@ -272,7 +272,6 @@ export class AnkiDroid {
    * media file to be placed in the desired field of a card
    *
    * Notes to consider:
-   * * The file URI should be prefixed with `file://`
    * * Both AnkiDroid and your app should have the
    * `android.permission.MANAGE_EXTERNAL_STORAGE` permission granted if you wish
    * to upload the file from external storage

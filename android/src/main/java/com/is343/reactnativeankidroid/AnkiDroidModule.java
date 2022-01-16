@@ -10,9 +10,12 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ListIterator;
+import java.io.File;
 import android.util.SparseArray;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.content.Intent;
+import androidx.core.content.FileProvider;
 
 import android.os.Build;
 import com.facebook.react.bridge.Promise;
@@ -65,9 +68,12 @@ public class AnkiDroidModule extends ReactContextBaseJavaModule {
    */
   @ReactMethod
   public void uploadMediaFromUri(String fileUri, String preferredName, String mimeType, Promise promise) {
-    Uri uri = Uri.parse(fileUri);
+    File file = new File(fileUri.replaceFirst("^file://", ""));
+    Uri uri = FileProvider.getUriForFile(mContext, mContext.getPackageName() + ".fileProvider", file);
+    mContext.grantUriPermission("com.ichi2.anki", uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
     String formatMediaName = mApi.addMediaFromUri(uri, preferredName, mimeType);
-    
+    mContext.revokeUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
     if (formatMediaName == null) {
       promise.reject("Failed to upload the file. URI: " + fileUri + "; preferredName: " + preferredName + "; mimeType: " + mimeType);
       return;

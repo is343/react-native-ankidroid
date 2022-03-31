@@ -1,6 +1,6 @@
 {
   "name": "react-native-ankidroid",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "A react native wrapper for the AnkiDroid API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
